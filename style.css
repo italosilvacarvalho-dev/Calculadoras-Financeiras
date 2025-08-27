@@ -1593,3 +1593,103 @@ input, select{
 .light #themeToggle::before{
   content:"☀️"; transform:translateX(calc(var(--w) - var(--h))); background:#0b0f14;
 }
+
+/* ============ Base fluida e container ============ */
+html{ /* tipografia “elástica” */
+  font-size: clamp(14px, 0.85vw + 10px, 16px);
+}
+.container{
+  max-width: 1080px;
+  width: min(100%, 1080px);
+  padding-inline: clamp(12px, 4vw, 24px);
+}
+
+/* cards do grid se adaptam melhor em telas médias/pequenas */
+.grid{
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* alvos de toque confortáveis */
+button,.ghost,.primary{ min-height: 44px; }
+
+/* topo mais compacto no celular */
+@media (max-width: 640px){
+  .topbar{ padding: 10px 12px; }
+  .topbar h1{ font-size: 1rem; }
+}
+
+/* ============ Formulários ============ */
+/* no mobile: inputs ocupam 100% e labels empilham */
+@media (max-width: 640px){
+  .form .row{ gap: 10px; }
+  .row > label{ min-width: 100%; flex: 1 1 100%; }
+  input, select, .input-std, .input-sm, .input-compact{ width: 100%; }
+  .check-inline{ margin-top: 8px; }
+}
+
+/* grids de campos (já existem), só refinamos os cortes */
+@media (max-width: 1024px){
+  .top-fields{ grid-template-columns: repeat(2, minmax(180px,1fr)); }
+}
+@media (max-width: 640px){
+  .top-fields{ grid-template-columns: 1fr; }
+  .fields-2{ grid-template-columns: 1fr !important; }
+}
+
+/* seção Taxas (v2) — duas colunas no desktop, uma no mobile */
+@media (max-width: 640px){
+  .taxes-grid-v2{ grid-template-columns: 1fr !important; }
+  .ir-inline-v2{ width: 100%; justify-content: space-between; }
+}
+
+/* mantemos alturas consistentes para controles alinharem */
+.taxes-grid-v2 input, .taxes-grid-v2 select, .ir-inline-v2{
+  min-height: 44px;
+}
+
+/* ============ Cards/KPIs ============ */
+@media (max-width: 640px){
+  .metrics{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 420px){
+  .metrics{ grid-template-columns: 1fr; }
+}
+
+/* ============ Tabela (detalhe mensal) ============ */
+/* já tem overflow-x; aqui só deixamos mais “compacta” no mobile */
+@media (max-width: 640px){
+  #psTableSection .table-head.enhanced{ text-align:center; }
+  #psTableSection .th-left{ align-items:center; }
+  #psTableSection th, #psTableSection td{ padding: 8px 10px; font-size: .92rem; }
+  #psTableSection .th-legend{ flex-wrap: wrap; justify-content: center; row-gap: 6px; }
+  #psTableSection .copy-btn{ padding:6px 10px; }
+  #psTableSection .table-wrap{ margin-inline: -8px; } /* usa toda a tela */
+}
+
+/* pager sempre centralizado (já feito), mas com toques maiores no mobile */
+@media (max-width: 640px){
+  #psPagerBottom .ghost, #psPager .ghost{ min-height: 40px; }
+}
+
+/* ============ Cenários salvos (Juros Compostos) ============ */
+@media (max-width: 640px){
+  .scenario-list li{ flex-direction: column; align-items: flex-start; gap: 10px; }
+  .scenario-list li .row{ width: 100%; justify-content: flex-end; }
+}
+
+/* ============ Utilidades de visibilidade ============ */
+.show-on-mobile{ display: none !important; }
+@media (max-width: 640px){
+  .hide-on-mobile{ display: none !important; }
+  .show-on-mobile{ display: initial !important; }
+}
+
+/* ============ Acessibilidade extra ============ */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+
+/* iOS safe areas (notch) */
+body{
+  padding-bottom: env(safe-area-inset-bottom);
+}

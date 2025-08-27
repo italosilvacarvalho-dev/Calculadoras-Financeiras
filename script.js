@@ -43,7 +43,6 @@ grid.addEventListener("click", (e)=>{
 goHome.addEventListener("click", (e)=>{e.preventDefault(); backHome();});
 closePanel.addEventListener("click", backHome);
 
-// tema (persiste)
 // tema (persiste + acessibilidade + tooltip)
 const THEME_KEY = "app_theme_light";
 
@@ -57,14 +56,10 @@ function applyThemeState(){
             : "Usando tema escuro — clique para claro"
   );
 }
-
-// aplica o tema salvo
 if (localStorage.getItem(THEME_KEY) === "1") {
   document.body.classList.add("light");
 }
 applyThemeState();
-
-// alterna o tema e persiste
 themeToggle?.addEventListener("click", ()=>{
   document.body.classList.toggle("light");
   localStorage.setItem(
@@ -73,7 +68,6 @@ themeToggle?.addEventListener("click", ()=>{
   );
   applyThemeState();
 });
-
 
 // router por hash (load + back/forward)
 function bootFromHash(){
@@ -88,12 +82,43 @@ window.addEventListener("hashchange", bootFromHash);
  *********************************/
 function fmtBR(n){ return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
 
+// ===== CSV helper (atualizado) =====
+const CSV = {
+  /** Descobre separador; pode forçar com localStorage.csv_sep="," ou ";" */
+  sep(){
+    const forced = (localStorage.getItem("csv_sep")||"").trim();
+    if (forced === "," || forced === ";") return forced;
+    const lang = (navigator.language||"en").toLowerCase();
+    return /^(pt|es|fr|it|de)/.test(lang) ? ";" : ",";
+  },
+  esc(s){ return `"${String(s).replace(/"/g,'""')}"`; },
+
+  /**
+   * Baixa CSV.
+   * @param {string[][]} rows  Matriz de linhas/células
+   * @param {string} filename  Nome do arquivo
+   * @param {object} [opts]    { sep:","|";", excel:boolean }
+   *  - excel:true => adiciona a linha "sep=" (útil p/ Excel). Padrão: false.
+   */
+  download(rows, filename, opts = {}){
+    const sep   = opts.sep || this.sep();
+    const excel = !!opts.excel; // se true adiciona "sep="
+    const bom   = "\ufeff";
+    const sepLine = excel ? `sep=${sep}\n` : "";
+    const body = rows.map(r => r.map(this.esc).join(sep)).join("\n");
+    const csv  = bom + sepLine + body;
+
+    const url = URL.createObjectURL(new Blob([csv], { type:"text/csv;charset=utf-8" }));
+    const a = Object.assign(document.createElement("a"), { href:url, download:filename });
+    a.click(); URL.revokeObjectURL(url);
+  }
+};
+
+
 // cria helpers escopados à view (com fallback global p/ elementos fora da view)
 function createScope(viewId){
   const base = `#${viewId}`;
-  const $  = (sel)=>{
-    return document.querySelector(`${base} ${sel}`) || document.querySelector(sel);
-  };
+  const $  = (sel)=> document.querySelector(`${base} ${sel}`) || document.querySelector(sel);
   const $$ = (sel)=>{
     const scoped = document.querySelectorAll(`${base} ${sel}`);
     if(scoped && scoped.length) return scoped;
@@ -182,42 +207,25 @@ registerCalc("juros-compostos", (function(){
     lastResult = {params:{P,A,i,n}, ...out};
   }
 
+  // === EXPORTAR (CSV robusto) ===
   function exportar(){
-  if(!lastResult) calcular();
+    if(!lastResult) calcular();
 
-  const {linhas, montante, totalAportes, jurosAcum} = lastResult;
-  const toBRL = (n) => Number.isFinite(n)
-    ? n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" })
-    : String(n);
+    const {linhas, montante, totalAportes, jurosAcum} = lastResult;
+    const toBRL = (n) => Number.isFinite(n) ? fmtBR(n) : String(n);
 
-  const SEP = ";";
-  const rows = [];
+    const rows = [];
+    rows.push(["Mês","Aporte","Juros do mês","Saldo ao final"]);
+    for(const l of linhas){
+      rows.push([ l.mes, toBRL(l.aporte), toBRL(l.juros), toBRL(l.saldo) ]);
+    }
+    rows.push([]);
+    rows.push(["Montante","","",           toBRL(montante)]);
+    rows.push(["Total Aportado","","",     toBRL(totalAportes)]);
+    rows.push(["Juros Acumulados","","",   toBRL(jurosAcum)]);
 
-  // Cabeçalho
-  rows.push(["Mês","Aporte","Juros do mês","Saldo ao final"]);
-
-  // Corpo
-  for(const l of linhas){
-    rows.push([ l.mes, toBRL(l.aporte), toBRL(l.juros), toBRL(l.saldo) ]);
+    CSV.download(rows, "cronograma-juros-compostos.csv");
   }
-
-  // Resumo
-  rows.push([]);
-  rows.push(["Montante","","",           toBRL(montante)]);
-  rows.push(["Total Aportado","","",     toBRL(totalAportes)]);
-  rows.push(["Juros Acumulados","","",   toBRL(jurosAcum)]);
-
-  // CSV com BOM + escape de células
-  const csv = "\ufeff" + rows.map(r => r.map(c => {
-    const s = String(c);
-    return /[;"\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
-  }).join(SEP)).join("\n");
-
-  const url = URL.createObjectURL(new Blob([csv], { type:"text/csv;charset=utf-8" }));
-  const a = Object.assign(document.createElement("a"), { href:url, download:"cronograma-juros-compostos.csv" });
-  a.click(); URL.revokeObjectURL(url);
-}
-
 
   return {
     title: "Juros Compostos",
@@ -413,8 +421,8 @@ registerCalc("poupanca-selic", (function () {
     const head = $("#psTableSection .table-head");
     if (!head) return;
 
-    head.classList.add("enhanced", "centered"); // remova "centered" se preferir à esquerda
-    if (head.querySelector(".th-title")) return; // já existe
+    head.classList.add("enhanced", "centered");
+    if (head.querySelector(".th-title")) return;
 
     const left = document.createElement("div");
     left.className = "th-left";
@@ -442,7 +450,6 @@ registerCalc("poupanca-selic", (function () {
     head.appendChild(left);
   }
 
-  // Atualiza texto do chip/metadados do cabeçalho
   function updateTableHeadMeta(meses){
     const chip  = $("#psIrChip");
     const ativo = !!$("#psIRAtivo")?.checked;
@@ -453,7 +460,6 @@ registerCalc("poupanca-selic", (function () {
       chip.classList.toggle("off", !ativo);
     }
 
-    // período "X anos • Y meses"
     const range = $("#psMetaRange");
     if (range){
       const a = Math.floor(meses/12), m = meses%12;
@@ -461,7 +467,6 @@ registerCalc("poupanca-selic", (function () {
       range.textContent = parts.length ? parts.join(" • ") : "—";
     }
 
-    // taxas atuais
     const rates = $("#psMetaRates");
     if (rates){
       const selicAA = Number($("#psSelicAA").value||0);
@@ -470,32 +475,11 @@ registerCalc("poupanca-selic", (function () {
       rates.textContent = `Selic ${(selicAA).toFixed(2).replace('.',',')}%  •  Poup ${(poupAA).toFixed(2).replace('.',',')}%  •  TR ${(trAA).toFixed(2).replace('.',',')}%`;
     }
 
-    // estatística rápida (diferença)
     const extra = $("#psMetaExtra");
     if (extra && last){
       const diff = last.finais.selicLiq - last.finais.poup;
       extra.textContent = `Diferença: ${fmtBR(diff)}`;
     }
-  }
-
-  // texto para o botão "Copiar resumo"
-  function headerSummaryText(meses){
-    const selicAA = Number($("#psSelicAA").value||0);
-    const trAA    = Number($("#psTR").value||0);
-    const poupAA  = Number($("#psPoupAA").value||0);
-    const irTxt   = !!$("#psIRAtivo")?.checked ? `IR regressivo — ${irFaixaLabelByMonths(meses)}` : "IR desativado";
-
-    const a = Math.floor(meses/12), m = meses%12;
-    const periodo = [a?`${a} ano${a>1?'s':''}`:"", m?`${m} mês${m>1?'es':''}`:""].filter(Boolean).join(" • ") || `${meses} meses`;
-
-    const dif = last ? fmtBR(last.finais.selicLiq - last.finais.poup) : "—";
-    return [
-      `Detalhe mensal`,
-      irTxt,
-      `Período: ${periodo}`,
-      `Taxas — Selic ${selicAA.toFixed(2)}% • Poup ${poupAA.toFixed(2)}% • TR ${trAA.toFixed(2)}%`,
-      last ? `Montantes — Poup: ${fmtBR(last.finais.poup)} • Selic (líq.): ${fmtBR(last.finais.selicLiq)} • Dif: ${dif}` : ""
-    ].filter(Boolean).join("\n");
   }
 
   function desenhar(labels, sPoup, sSelicLiq){
@@ -570,7 +554,6 @@ registerCalc("poupanca-selic", (function () {
     if (prev) prev.disabled = tableState.page <= 1 || totalRows === 0;
     if (next) next.disabled = tableState.page >= totalPages || totalRows === 0;
 
-    // posiciona a paginação no rodapé e atualiza o cabeçalho
     const mesesView = Math.max(1, totalRows);
     requestAnimationFrame(() => {
       movePagerToBottom();
@@ -579,7 +562,6 @@ registerCalc("poupanca-selic", (function () {
     });
   }
 
-  // paginação no rodapé da tabela (preserva listeners)
   function movePagerToBottom(){
     const prev = $("#psPrev");
     const info = $("#psPageInfo");
@@ -596,7 +578,6 @@ registerCalc("poupanca-selic", (function () {
       table.insertAdjacentElement("afterend", bottom);
     }
 
-    // cria contêineres (esquerda/centro) se ainda não existirem
     let left  = bottom.querySelector(".pager-left");
     let center = bottom.querySelector(".pager-center");
     if (!left || !center){
@@ -608,15 +589,12 @@ registerCalc("poupanca-selic", (function () {
       bottom.append(left, center);
     }
 
-    // leva o seletor "Itens por página" para a esquerda
     const per = $("#psPerPage");
     const perLabel = bottom.querySelector('label[for="psPerPage"]') 
                   || Object.assign(document.createElement("label"), { 
                        htmlFor: "psPerPage", textContent: "Itens por página" 
                      });
     if (per){ left.append(perLabel, per); }
-
-    // e o pager fica no centro
     center.append(prev, info, next);
   }
 
@@ -624,7 +602,7 @@ registerCalc("poupanca-selic", (function () {
   function calcular(e){
     e && e.preventDefault();
 
-    suppressInput = true; // inicia seção crítica
+    suppressInput = true;
 
     const P0 = Number($("#psInicial").value||0);
     const A  = Number($("#psAporte").value||0);
@@ -635,7 +613,7 @@ registerCalc("poupanca-selic", (function () {
     meses = Math.max(1, Math.floor(meses));
 
     const selicAA = Number($("#psSelicAA").value||0);
-    refreshPoupAA(); // atualiza poupança sem disparar reset
+    refreshPoupAA();
     const poupAA  = Number($("#psPoupAA").value||0);
 
     const iSelic = aaToAm(selicAA);
@@ -676,56 +654,39 @@ registerCalc("poupanca-selic", (function () {
       finais:{ poup:sP.final, selicBruta:sS.final, selicLiq:montanteLiq }
     };
 
-    suppressInput = false; // fim seção crítica
+    suppressInput = false;
 
     afterCalculated();
     updateIRBadge(meses);
-    updateTableHeadMeta(meses);   // atualiza cabeçalho após calcular
+    updateTableHeadMeta(meses);
 
     tableState.page = 1;
     renderTable();
   }
 
+  // === EXPORTAR (CSV robusto) ===
   function exportCSV(){
-  if(!last) return;
+    if(!last) return;
 
-  const toBRL = (n) => Number.isFinite(n)
-    ? n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" })
-    : String(n);
+    const toBRL = (n) => Number.isFinite(n) ? fmtBR(n) : String(n);
 
-  const SEP = ";";
-  const rows = [];
+    const rows = [];
+    rows.push(["Mês","Poupança","Selic (bruta)","Selic (líquida)"]);
+    for(let i=0;i<last.labels.length;i++){
+      rows.push([
+        last.labels[i],
+        toBRL(last.seriePoup[i]),
+        toBRL(last.serieSelicBruta[i]),
+        toBRL(last.serieSelicLiq[i])
+      ]);
+    }
+    rows.push([]);
+    rows.push(["Montante Poupança","","", toBRL(last.finais.poup)]);
+    rows.push(["Montante Selic (bruta)","","", toBRL(last.finais.selicBruta)]);
+    rows.push(["Montante Selic (líquida)","","", toBRL(last.finais.selicLiq)]);
 
-  // Cabeçalho
-  rows.push(["Mês","Poupança","Selic (bruta)","Selic (líquida)"]);
-
-  // Corpo
-  for(let i=0;i<last.labels.length;i++){
-    rows.push([
-      last.labels[i],
-      toBRL(last.seriePoup[i]),
-      toBRL(last.serieSelicBruta[i]),
-      toBRL(last.serieSelicLiq[i])
-    ]);
+    CSV.download(rows, "poupanca-vs-selic.csv");
   }
-
-  // Resumo
-  rows.push([]);
-  rows.push(["Montante Poupança","","", toBRL(last.finais.poup)]);
-  rows.push(["Montante Selic (bruta)","","", toBRL(last.finais.selicBruta)]);
-  rows.push(["Montante Selic (líquida)","","", toBRL(last.finais.selicLiq)]);
-
-  // CSV com BOM + escape de células
-  const csv = "\ufeff" + rows.map(r => r.map(c => {
-    const s = String(c);
-    return /[;"\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
-  }).join(SEP)).join("\n");
-
-  const url = URL.createObjectURL(new Blob([csv], { type:"text/csv;charset=utf-8" }));
-  const a = Object.assign(document.createElement("a"), { href:url, download:"poupanca-vs-selic.csv" });
-  a.click(); URL.revokeObjectURL(url);
-}
-
 
   /* ===== Lifecycle ===== */
   function handleFieldChange(){
@@ -733,7 +694,6 @@ registerCalc("poupanca-selic", (function () {
     refreshPoupAA();
     resetView(true);
 
-    // mantém o cabeçalho coerente enquanto o usuário edita
     const raw   = Number($("#psPeriodo").value||1);
     const meses = ($("#psUnidade").value==="anos") ? (raw||1)*12 : (raw||1);
     updateTableHeadMeta(Math.max(1, Math.floor(meses)));
@@ -752,21 +712,17 @@ registerCalc("poupanca-selic", (function () {
   return {
     title: "Poupança x Selic",
     mount(){
-      // mostra a tabela (fica fora da view)
       document.getElementById("psTableSection")?.classList.remove("hidden");
 
       showView(viewId);
 
-      // Submit / Export
       on($("#psForm"),     "submit", (e)=>{ e.preventDefault(); calcular(); });
       on($("#psCalcular"), "click",  (e)=>{ e.preventDefault(); calcular(); });
       on($("#psExport"),   "click",   exportCSV);
 
-      // Inputs normais: preparam (não calculam)
       ["#psSelicAA","#psTR","#psPoupAA","#psInicial","#psAporte","#psPeriodo","#psUnidade"]
         .forEach(sel => on($(sel), "input", handleFieldChange));
 
-      // Taxa Poupança: foco libera edição; dblclick volta ao automático
       const poup = $("#psPoupAA");
       if (poup){
         poup.disabled = false;
@@ -790,14 +746,11 @@ registerCalc("poupanca-selic", (function () {
         });
       }
 
-      // IR toggle
       on($("#psIRAtivo"), "input", handleIRToggle);
 
-      // Paginador
       on($("#psPrev"), "click", ()=>{ tableState.page--; renderTable(); });
       on($("#psNext"), "click", ()=>{ tableState.page++; renderTable(); });
 
-      // Itens por página
       on($("#psPerPage"), "change", () => {
         const val = parseInt($("#psPerPage").value || "10", 10);
         tableState.perPage = Math.max(1, isFinite(val) ? val : 10);
@@ -807,7 +760,6 @@ registerCalc("poupanca-selic", (function () {
       });
       if ($("#psPerPage")) $("#psPerPage").value = String(tableState.perPage || 10);
 
-      // Botão "Copiar resumo" (delegação)
       on($("#psTableSection"), "click", (e)=>{
         const btn = e.target.closest("#psCopySummary");
         if (!btn) return;
@@ -817,7 +769,6 @@ registerCalc("poupanca-selic", (function () {
           .catch(()=> { btn.textContent = "Erro :("; setTimeout(()=>btn.textContent="Copiar resumo", 1200); });
       });
 
-      // posiciona a paginação + cria cabeçalho já com metas iniciais
       requestAnimationFrame(() => {
         movePagerToBottom();
         ensureEnhancedHeader();
@@ -826,21 +777,17 @@ registerCalc("poupanca-selic", (function () {
         updateTableHeadMeta(Math.max(1, Math.floor(initMeses)));
       });
 
-      // Estado inicial
       refreshPoupAA();
       resetView(false);
       const initPeriod = Number($("#psPeriodo").value||1);
       const initMeses  = ($("#psUnidade").value==="anos") ? initPeriod*12 : initPeriod;
       updateIRBadge(initMeses);
-      // (updateTableHeadMeta já é chamado no rAF acima)
     },
     unmount(){
       if(chart){ chart.destroy(); chart=null; }
       offAll();
       last = null;
       dirty = false;
-
-      // esconde a tabela ao sair desta calculadora
       document.getElementById("psTableSection")?.classList.add("hidden");
     }
   };
