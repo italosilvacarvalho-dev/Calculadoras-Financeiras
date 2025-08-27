@@ -2030,3 +2030,17 @@ input, select, .input-std, .input-compact, .input-sm{
 #panel.hidden {
   display: none !important;
 }
+/* ===== SPA: views exclusivas por estado do <body> ===== */
+body.view-home #grid  { display: grid; }
+body.view-home #panel { display: none; }
+
+body.view-calc #grid  { display: none !important; }
+body.view-calc #panel { display: block; }
+
+/* scroll suave e compensação da topbar no foco do painel */
+html{ scroll-behavior:smooth; }
+.panel{ scroll-margin-top: calc(var(--topbar-h, 56px) + 8px); }
+
+/* SPA: garante “página individual” */
+body.view-home #panel{ display:none; }
+body.view-calc #grid{ display:none; }

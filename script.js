@@ -11,39 +11,68 @@ const themeToggle = document.getElementById("themeToggle");
 const Calculators = {}; // { key: {title, mount, unmount} }
 let current = null;
 
+/* ===== helpers de view ===== */
 function registerCalc(key, def){ Calculators[key] = def; }
+
+// substitua sua setView por esta
+function setView(mode){
+  const isHome = mode === "home";
+
+  // Garante que #grid e #panel não fiquem presos no .hidden (!important)
+  grid?.classList.toggle("hidden", !isHome);  // esconde o grid fora da home
+  panel?.classList.toggle("hidden", isHome);  // esconde o painel na home
+
+  // (opcional) mantém as classes na <body> se você quiser usar no CSS
+  document.body.classList.toggle("view-home", isHome);
+  document.body.classList.toggle("view-calc", !isHome);
+}
+function jumpToPanel(){
+  // faz o painel “aparecer como página” também no iOS/Android
+  requestAnimationFrame(()=> panel?.scrollIntoView({ block:"start", behavior:"smooth" }));
+}
+
 function showView(id){
   document.querySelectorAll(".calc-view").forEach(v => v.classList.add("hidden"));
   document.getElementById(id)?.classList.remove("hidden");
 }
+
 function openCalc(key){
-  if(current && Calculators[current]?.unmount) Calculators[current].unmount();
+  if (current && Calculators[current]?.unmount) Calculators[current].unmount();
+
   const def = Calculators[key] || Calculators["placeholder"];
   panelTitle.textContent = def.title;
-  grid.classList.add("hidden");
-  panel.classList.remove("hidden");
+
+  setView("calc");           // esconde o grid e mostra o painel em todas as larguras
   def.mount();
   current = key;
-  location.hash = `#/${key}`;
-}
-function backHome(){
-  if(current && Calculators[current]?.unmount) Calculators[current].unmount();
-  panel.classList.add("hidden");
-  grid.classList.remove("hidden");
-  current = null;
-  location.hash = "#/";
+
+  const targetHash = `#/${key}`;
+  if (location.hash !== targetHash) location.hash = targetHash; // evita remount duplo
+  jumpToPanel();
 }
 
-// navegação pelos cards
+function backHome(){
+  if (current && Calculators[current]?.unmount) Calculators[current].unmount();
+  current = null;
+
+  setView("home");           // volta para o grid
+  const homeHash = "#/";
+  if (location.hash !== homeHash) location.hash = homeHash;
+
+  requestAnimationFrame(()=> window.scrollTo({ top:0, behavior:"smooth" }));
+}
+
+/* ===== navegação pelos cards ===== */
 grid.addEventListener("click", (e)=>{
   const btn = e.target.closest("[data-open]");
   if(!btn) return;
+  e.preventDefault();                 // impede navegação padrão de <a>
   openCalc(btn.dataset.open);
 });
-goHome.addEventListener("click", (e)=>{e.preventDefault(); backHome();});
+goHome.addEventListener("click", (e)=>{ e.preventDefault(); backHome(); });
 closePanel.addEventListener("click", backHome);
 
-// tema (persiste + acessibilidade + tooltip)
+/* ===== tema (persiste + acessibilidade + tooltip) ===== */
 const THEME_KEY = "app_theme_light";
 
 function applyThemeState(){
@@ -69,11 +98,18 @@ themeToggle?.addEventListener("click", ()=>{
   applyThemeState();
 });
 
-// router por hash (load + back/forward)
+/* ===== router por hash (load + back/forward) ===== */
 function bootFromHash(){
-  const hash = (location.hash||"").replace("#/","");
-  if(hash) openCalc(hash); else backHome();
+  const key = (location.hash||"").replace("#/","").trim();
+  if (key){
+    if (key !== current) openCalc(key);
+  } else {
+    backHome();
+  }
 }
+
+// estado inicial: home
+document.body.classList.add("view-home");
 window.addEventListener("load", bootFromHash);
 window.addEventListener("hashchange", bootFromHash);
 
@@ -102,7 +138,7 @@ const CSV = {
    */
   download(rows, filename, opts = {}){
     const sep   = opts.sep || this.sep();
-    const excel = !!opts.excel; // se true adiciona "sep="
+    const excel = !!opts.excel;
     const bom   = "\ufeff";
     const sepLine = excel ? `sep=${sep}\n` : "";
     const body = rows.map(r => r.map(this.esc).join(sep)).join("\n");
@@ -113,7 +149,6 @@ const CSV = {
     a.click(); URL.revokeObjectURL(url);
   }
 };
-
 
 // cria helpers escopados à view (com fallback global p/ elementos fora da view)
 function createScope(viewId){
@@ -230,9 +265,7 @@ registerCalc("juros-compostos", (function(){
   return {
     title: "Juros Compostos",
     mount(){
-      // garantir que a tabela da outra calc não apareça aqui
       document.getElementById("psTableSection")?.classList.add("hidden");
-
       showView(viewId);
       on($("#jcForm"),   "submit", calcular);
       on($("#jcExport"), "click",  exportar);
@@ -517,7 +550,7 @@ registerCalc("poupanca-selic", (function () {
   function renderTable(){
     if (!last) { clearTable(); return; }
 
-    const usarIR = !!$("#psIRAtivo")?.checked;
+    const usarIR = !!($("#psIRAtivo")?.checked);
     const serieSelic = usarIR ? last.serieSelicLiq : last.serieSelicBruta;
 
     const thSelic = $("#thSelic");
@@ -713,7 +746,6 @@ registerCalc("poupanca-selic", (function () {
     title: "Poupança x Selic",
     mount(){
       document.getElementById("psTableSection")?.classList.remove("hidden");
-
       showView(viewId);
 
       on($("#psForm"),     "submit", (e)=>{ e.preventDefault(); calcular(); });
