@@ -1880,3 +1880,79 @@ input, select, .input-std, .input-compact, .input-sm{
   #psPagerBottom .pager-left{ justify-self: start; }
   #psPagerBottom .pager-center{ justify-self: center; }
 }
+/* === HOTFIX: Pager responsivo e seletor compacto (colar NO FINAL) === */
+
+/* 1) Seletor “Itens por página” bem menor */
+#psPerPage{
+  min-width: 0 !important;          /* ignora o min-width global de inputs */
+  width: auto;
+  padding: 6px 8px;                  /* mais compacto */
+  line-height: 1.2;
+}
+#psPagerBottom .pager-left label[for="psPerPage"]{
+  white-space: nowrap;
+  font-size: .9rem;
+}
+
+/* em telas bem estreitas, esconda o rótulo para caber melhor */
+@media (max-width: 380px){
+  #psPagerBottom .pager-left label[for="psPerPage"]{ display:none; }
+}
+
+/* 2) Pager empilhado no mobile (sobrepõe as regras antigas com flex) */
+@media (max-width: 640px){
+  /* força GRID mesmo que exista “display:flex !important” acima */
+  #psTableSection #psPagerBottom{
+    display: grid !important;
+    grid-template-columns: 1fr !important;   /* 1 coluna */
+    row-gap: 8px;
+    padding-inline: 8px;                      /* respiro nas bordas */
+    width: 100%;
+  }
+
+  /* linha de cima (itens por página) centralizada e estreita */
+  #psPagerBottom .pager-left{
+    justify-self: center;
+    width: auto;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  /* linha de baixo: Anterior | Página X de Y | Próxima */
+  #psPagerBottom .pager-center{
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  /* texto do meio não quebra e se adapta */
+  #psPageInfo{
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+    font-size: .95rem;
+  }
+
+  /* botões menores */
+  #psPagerBottom .ghost{
+    padding: 8px 10px;
+    border-radius: 10px;
+    min-height: 40px;
+  }
+}
+
+/* 3) Em ≥640px voltamos ao grid em 3 colunas (esq | centro | dir) */
+@media (min-width: 640px){
+  #psTableSection #psPagerBottom{
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    column-gap: 12px;
+    padding-inline: 0;
+  }
+  #psPagerBottom .pager-left{ justify-self: start; }
+  #psPagerBottom .pager-center{ justify-self: center; }
+}
