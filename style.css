@@ -1956,3 +1956,77 @@ input, select, .input-std, .input-compact, .input-sm{
   #psPagerBottom .pager-left{ justify-self: start; }
   #psPagerBottom .pager-center{ justify-self: center; }
 }
+/* --- Seletor compacto --- */
+#psPerPage{
+  min-width: 0 !important;   /* ignora min-width global dos inputs */
+  width: auto;
+  padding: 6px 8px;
+  line-height: 1.2;
+}
+#psPagerBottom .pager-left label[for="psPerPage"]{
+  white-space: nowrap;
+  font-size: .9rem;
+}
+@media (max-width: 380px){
+  #psPagerBottom .pager-left label[for="psPerPage"]{ display:none; }
+}
+
+/* --- Pager: layout por breakpoint --- */
+
+/* MOBILE (<640px): 2 linhas (em coluna) */
+@media (max-width: 639.98px){
+  #psTableSection #psPagerBottom{
+    display: grid !important;
+    grid-template-columns: 1fr !important;  /* 1 coluna */
+    row-gap: 8px;
+    width: 100%;
+    padding-inline: 8px;
+  }
+  /* 1ª linha: seletor centralizado */
+  #psPagerBottom .pager-left{
+    justify-self: center;
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  /* 2ª linha: Anterior | Página X de Y | Próxima */
+  #psPagerBottom .pager-center{
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  #psPageInfo{
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+    font-size: .95rem;
+  }
+  #psPagerBottom .ghost{
+    padding: 8px 10px;
+    border-radius: 10px;
+    min-height: 40px;
+  }
+}
+
+/* ≥640px: volta ao layout ANTIGO em 3 colunas (individual) */
+@media (min-width: 640px){
+  #psTableSection #psPagerBottom{
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;  /* esq | centro | dir */
+    column-gap: 12px;
+    padding-inline: 0;
+  }
+  #psPagerBottom .pager-left{ justify-self: start; }
+  #psPagerBottom .pager-center{ justify-self: center; }
+}
+/* SPA: .hidden precisa sempre vencer qualquer "display" anterior */
+.hidden,
+.calc-view.hidden,
+#grid.hidden,
+#panel.hidden {
+  display: none !important;
+}
