@@ -2044,3 +2044,190 @@ html{ scroll-behavior:smooth; }
 /* SPA: garante “página individual” */
 body.view-home #panel{ display:none; }
 body.view-calc #grid{ display:none; }
+
+/* Destaque do ícone nos cards */
+.card .icon{
+  position: relative;
+  font-size: 30px;
+  z-index: 1;
+  transition: transform .25s ease;
+}
+
+/* halo/efeito de luz atrás do ícone */
+.card .icon::after{
+  content:"";
+  position:absolute;
+  inset:-12px -12px -10px -12px;  /* “aura” maior que o ícone */
+  border-radius: 16px;
+  z-index:-1;
+  background:
+    radial-gradient(40% 40% at 30% 30%, rgba(74,222,128,.55), transparent 60%),
+    radial-gradient(36% 36% at 70% 70%, rgba(59,130,246,.45), transparent 60%);
+  filter: blur(10px) saturate(1.2);
+  opacity:.6;
+  transition: transform .35s ease, opacity .25s ease;
+}
+
+/* micro-anim no hover */
+.card:hover .icon{ transform: translateY(-1px); }
+.card:hover .icon::after{
+  opacity:.9;
+  transform: scale(1.06) rotate(4deg);
+}
+.card .icon::before{
+  content:"";
+  position:absolute;
+  left:-6px; top:-6px; right:-6px; bottom:-6px;
+  border-radius:14px;
+  background: conic-gradient(from 180deg, #22c55e, #3b82f6, #22c55e);
+  opacity:.15;
+  filter: blur(6px);
+  z-index:-2;
+  transition: opacity .25s ease;
+}
+.card:hover .icon::before{ opacity:.28; }
+
+/* ===== Botões de ação: Exportar / Salvar (glow + gradiente) ===== */
+
+/* 1) Contêiner com “capsula” sutil quando tiver os botões juntos */
+#view-juros-compostos .actions:has(#jcExport, #jcSalvar),
+#view-poupanca-selic .actions:has(#psExport){
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 6px;
+  gap: 10px;
+}
+.light #view-juros-compostos .actions:has(#jcExport, #jcSalvar),
+.light #view-poupanca-selic .actions:has(#psExport){
+  background: #fff;
+  border-color: #e6ebf3;
+  box-shadow: 0 6px 16px rgba(2,6,23,.06) inset;
+}
+
+/* 2) Botão com destaque (reutilizável) */
+.btn-soft{
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease, filter .2s ease;
+  will-change: transform, box-shadow;
+}
+
+/* borda gradiente “viva” usando máscara */
+.btn-soft::after{
+  content:"";
+  position:absolute; inset:-1px; border-radius: inherit; padding: 1px;
+  background: conic-gradient(from 180deg, #22c55e, #3b82f6, #22c55e);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity:.28; pointer-events:none;
+  transition: opacity .25s ease;
+}
+
+/* hover/focus */
+.btn-soft:hover,
+.btn-soft:focus-visible{
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--stroke));
+  background: linear-gradient(180deg, rgba(74,222,128,.10), rgba(59,130,246,.06));
+  transform: translateY(-1px);
+}
+.btn-soft:hover::after,
+.btn-soft:focus-visible::after{ opacity:.55; }
+
+/* active (tap) com micro pulso */
+@keyframes clickPulse{ from{ box-shadow: 0 0 0 0 rgba(34,197,94,.35); } to{ box-shadow: 0 0 0 10px rgba(34,197,94,0); } }
+.btn-soft:active{ transform: translateY(0); animation: clickPulse .45s ease-out; filter: brightness(.98); }
+
+/* disabled */
+.btn-soft:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; filter: grayscale(.2); }
+.btn-soft:disabled::after{ opacity:.16; }
+
+/* 3) Aplicar nos botões específicos (sem mexer no HTML) */
+#jcExport, #jcSalvar, #psExport{ all: unset; display:inline-flex; align-items:center; gap:10px; padding:10px 14px; color:var(--text); cursor:pointer; }
+#jcExport, #jcSalvar, #psExport{ border-radius:12px; }
+#jcExport, #jcSalvar, #psExport{ border:1px solid var(--stroke); }
+#jcExport, #jcSalvar, #psExport{ background: none; } /* base limpa */
+#jcExport, #jcSalvar, #psExport{ line-height: 1.2; }
+
+#jcExport, #jcSalvar, #psExport{ /* injeta nossa skin */
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+}
+#jcExport.btn-soft, #jcSalvar.btn-soft, #psExport.btn-soft{} /* só p/ facilitar leitura */
+
+/* 4) Ícones via pseudo-elemento (sem mudar HTML) */
+#jcExport::before{ content:"⬇️"; }
+#jcSalvar::before{ content:"💾"; }
+#psExport::before{ content:"⬇️"; }
+#jcExport::before, #jcSalvar::before, #psExport::before{
+  font-size: 1.05rem; line-height: 1; display:inline-block; transform: translateY(1px);
+}
+
+/* 5) Herdar a skin .btn-soft neles por padrão */
+#jcExport, #jcSalvar, #psExport{ /* aplica a classe virtualmente */
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease, filter .2s ease;
+}
+#jcExport::after, #jcSalvar::after, #psExport::after{
+  content:""; position:absolute; inset:-1px; border-radius: inherit; padding: 1px;
+  background: conic-gradient(from 180deg, #22c55e, #3b82f6, #22c55e);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity:.28; pointer-events:none; transition: opacity .25s ease;
+}
+#jcExport:hover, #jcSalvar:hover, #psExport:hover{
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--stroke));
+  background: linear-gradient(180deg, rgba(74,222,128,.10), rgba(59,130,246,.06));
+  transform: translateY(-1px);
+}
+#jcExport:hover::after, #jcSalvar:hover::after, #psExport:hover::after{ opacity:.55; }
+#jcExport:active, #jcSalvar:active, #psExport:active{ transform: translateY(0); animation: clickPulse .45s ease-out; filter: brightness(.98); }
+#jcExport:disabled, #jcSalvar:disabled, #psExport:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; filter: grayscale(.2); }
+#jcExport:disabled::after, #jcSalvar:disabled::after, #psExport:disabled::after{ opacity:.16; }
+
+/* 6) Tema claro — leve ajuste de contraste */
+.light #jcExport, .light #jcSalvar, .light #psExport{
+  background: linear-gradient(180deg, #ffffff, #f7fafc);
+  border-color:#e6ebf3;
+  box-shadow: 0 1px 0 #fff inset;
+}
+.light #jcExport:hover, .light #jcSalvar:hover, .light #psExport:hover{
+  background: linear-gradient(180deg, #ffffff, #eef5ff);
+  border-color:#cfe4ff;
+}
+/* Container do gráfico: começa oculto */
+.chart-wrap.is-empty{ display:none; }
+
+/* Quando tiver dados, vira um bloco com altura fixa e responsivo */
+.chart-wrap.has-chart{
+  position: relative;
+  display: block;
+  height: 360px;          /* desktop */
+  max-height: 70vh;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #0e121b, #0b0f14);
+  overflow: hidden;
+  transition: height .25s ease;
+}
+@media (max-width: 640px){
+  .chart-wrap.has-chart{ height: 260px; } /* mobile */
+}
+
+/* O canvas sempre ocupa 100% do container (Chart.js respeita) */
+.chart-wrap canvas{
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.chart-wrap { background: transparent; } /* canvas já pinta o fundo */
+body.light .chart-wrap { background: transparent; }

@@ -85,16 +85,16 @@
           <form id="jcForm" class="form">
             <div class="row">
               <label>Valor inicial (R$)
-                <input type="number" id="jcInicial" min="0" step="0.01" value="1000" placeholder="Ex.: 1000,00">
+                <input type="number" id="jcInicial" min="0" step="0.01" placeholder="Ex.: 1000,00" value="1000.00">
               </label>
               <label>Aporte mensal (R$)
-                <input type="number" id="jcAporte" min="0" step="0.01" value="500" placeholder="Ex.: 500,00">
+                <input type="number" id="jcAporte" min="0" step="0.01" placeholder="Ex.: 500,00" value=500.00>
               </label>
               <label>Taxa de juros (% a.m.)
-                <input type="number" id="jcTaxa" min="0" step="0.0001" value="1" placeholder="Ex.: 1,0">
+                <input type="number" id="jcTaxa" min="0" step="0.0001" placeholder="Ex.: 1,0" value="1.0">
               </label>
               <label>Período (meses)
-                <input type="number" id="jcMeses" min="1" step="1" value="120" placeholder="Ex.: 120">
+                <input type="number" id="jcMeses" min="1" step="1" placeholder="Ex.: 120" value="120">
               </label>
 
             </div>
@@ -205,7 +205,11 @@
     <div class="kpi"><span class="k-label">Diferença (Selic líquida − Poup.)</span><span id="psDiff" class="k-val">—</span></div>
   </div>
 
-  <canvas id="psChart" height="110"></canvas>
+  <!-- antes: <canvas id="psChart" height="110"></canvas> -->
+<div class="chart-wrap is-empty" id="psChartWrap" aria-hidden="true">
+  <canvas id="psChart"></canvas>
+</div>
+
 </div>
         <section class="card results-table" id="psTableSection">
   <div class="table-head">

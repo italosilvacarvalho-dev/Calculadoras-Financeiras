@@ -8,26 +8,20 @@ const goHome      = document.getElementById("goHome");
 const closePanel  = document.getElementById("closePanel");
 const themeToggle = document.getElementById("themeToggle");
 
-const Calculators = {}; // { key: {title, mount, unmount} }
+const Calculators = {}; // { key: {title, mount, unmount, refresh?} }
 let current = null;
 
 /* ===== helpers de view ===== */
 function registerCalc(key, def){ Calculators[key] = def; }
 
-// substitua sua setView por esta
 function setView(mode){
   const isHome = mode === "home";
-
-  // Garante que #grid e #panel não fiquem presos no .hidden (!important)
-  grid?.classList.toggle("hidden", !isHome);  // esconde o grid fora da home
-  panel?.classList.toggle("hidden", isHome);  // esconde o painel na home
-
-  // (opcional) mantém as classes na <body> se você quiser usar no CSS
+  grid?.classList.toggle("hidden", !isHome);
+  panel?.classList.toggle("hidden", isHome);
   document.body.classList.toggle("view-home", isHome);
   document.body.classList.toggle("view-calc", !isHome);
 }
 function jumpToPanel(){
-  // faz o painel “aparecer como página” também no iOS/Android
   requestAnimationFrame(()=> panel?.scrollIntoView({ block:"start", behavior:"smooth" }));
 }
 
@@ -38,14 +32,11 @@ function showView(id){
 
 function openCalc(key){
   if (current && Calculators[current]?.unmount) Calculators[current].unmount();
-
   const def = Calculators[key] || Calculators["placeholder"];
   panelTitle.textContent = def.title;
-
-  setView("calc");           // esconde o grid e mostra o painel em todas as larguras
+  setView("calc");
   def.mount();
   current = key;
-
   const targetHash = `#/${key}`;
   if (location.hash !== targetHash) location.hash = targetHash; // evita remount duplo
   jumpToPanel();
@@ -54,11 +45,9 @@ function openCalc(key){
 function backHome(){
   if (current && Calculators[current]?.unmount) Calculators[current].unmount();
   current = null;
-
-  setView("home");           // volta para o grid
+  setView("home");
   const homeHash = "#/";
   if (location.hash !== homeHash) location.hash = homeHash;
-
   requestAnimationFrame(()=> window.scrollTo({ top:0, behavior:"smooth" }));
 }
 
@@ -66,7 +55,7 @@ function backHome(){
 grid.addEventListener("click", (e)=>{
   const btn = e.target.closest("[data-open]");
   if(!btn) return;
-  e.preventDefault();                 // impede navegação padrão de <a>
+  e.preventDefault();
   openCalc(btn.dataset.open);
 });
 goHome.addEventListener("click", (e)=>{ e.preventDefault(); backHome(); });
@@ -96,6 +85,8 @@ themeToggle?.addEventListener("click", ()=>{
     document.body.classList.contains("light") ? "1" : "0"
   );
   applyThemeState();
+  // Re-renderiza o gráfico ativo com a paleta correta
+  if (current && Calculators[current]?.refresh) Calculators[current].refresh();
 });
 
 /* ===== router por hash (load + back/forward) ===== */
@@ -107,8 +98,6 @@ function bootFromHash(){
     backHome();
   }
 }
-
-// estado inicial: home
 document.body.classList.add("view-home");
 window.addEventListener("load", bootFromHash);
 window.addEventListener("hashchange", bootFromHash);
@@ -118,9 +107,47 @@ window.addEventListener("hashchange", bootFromHash);
  *********************************/
 function fmtBR(n){ return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
 
-// ===== CSV helper (atualizado) =====
+/* ===== Throttle simples (para resize) ===== */
+function throttle(fn, wait=150){
+  let t=0, lastArgs=null;
+  return function(...args){
+    const now=Date.now();
+    lastArgs=args;
+    if(now - t >= wait){
+      t=now; fn.apply(this,args);
+    }else{
+      clearTimeout(fn.__t);
+      fn.__t = setTimeout(()=>{ t=Date.now(); fn.apply(this,lastArgs); }, wait);
+    }
+  };
+}
+
+/* ===== Paleta para Chart.js (dark / light) ===== */
+function chartPalette(){
+  const isLight = document.body.classList.contains("light");
+  return isLight
+    ? {
+        bg:     "#ffffff", // 👈 fundo da área do gráfico (claro)
+        grid:   "#e2e8f0",
+        tick:   "#0f172a",
+        text:   "#0f172a",
+        series1:"#22c55e", // Montante / Selic líq.
+        series2:"#60a5fa", // Aportes / Poupança
+        series3:"#f59e0b"  // Juros
+      }
+    : {
+        bg:     "#0b1220", // 👈 fundo da área do gráfico (escuro)
+        grid:   "#2a3144",
+        tick:   "#cbd5e1",
+        text:   "#e6e9ef",
+        series1:"#22c55e",
+        series2:"#3b82f6",
+        series3:"#f59e0b"
+      };
+}
+
+/* ===== CSV helper ===== */
 const CSV = {
-  /** Descobre separador; pode forçar com localStorage.csv_sep="," ou ";" */
   sep(){
     const forced = (localStorage.getItem("csv_sep")||"").trim();
     if (forced === "," || forced === ";") return forced;
@@ -128,14 +155,6 @@ const CSV = {
     return /^(pt|es|fr|it|de)/.test(lang) ? ";" : ",";
   },
   esc(s){ return `"${String(s).replace(/"/g,'""')}"`; },
-
-  /**
-   * Baixa CSV.
-   * @param {string[][]} rows  Matriz de linhas/células
-   * @param {string} filename  Nome do arquivo
-   * @param {object} [opts]    { sep:","|";", excel:boolean }
-   *  - excel:true => adiciona a linha "sep=" (útil p/ Excel). Padrão: false.
-   */
   download(rows, filename, opts = {}){
     const sep   = opts.sep || this.sep();
     const excel = !!opts.excel;
@@ -143,27 +162,128 @@ const CSV = {
     const sepLine = excel ? `sep=${sep}\n` : "";
     const body = rows.map(r => r.map(this.esc).join(sep)).join("\n");
     const csv  = bom + sepLine + body;
-
     const url = URL.createObjectURL(new Blob([csv], { type:"text/csv;charset=utf-8" }));
     const a = Object.assign(document.createElement("a"), { href:url, download:filename });
     a.click(); URL.revokeObjectURL(url);
   }
 };
 
-// cria helpers escopados à view (com fallback global p/ elementos fora da view)
-function createScope(viewId){
-  const base = `#${viewId}`;
-  const $  = (sel)=> document.querySelector(`${base} ${sel}`) || document.querySelector(sel);
-  const $$ = (sel)=>{
-    const scoped = document.querySelectorAll(`${base} ${sel}`);
-    if(scoped && scoped.length) return scoped;
-    return document.querySelectorAll(sel);
-  };
-  // registro de listeners para cleanup
-  let listeners=[];
-  const on = (el,ev,fn)=>{ if(el){ el.addEventListener(ev,fn); listeners.push([el,ev,fn]); } };
-  const offAll = ()=>{ listeners.forEach(([el,ev,fn])=> el.removeEventListener(ev,fn)); listeners=[]; };
-  return { $, $$, on, offAll };
+/* ===== Plugin: pinta a área do gráfico conforme o tema ===== */
+const ChartBgPlugin = {
+  id: "chartAreaBackground",
+  beforeDraw(chart, args, opts){
+    const { ctx, chartArea } = chart;
+    if (!chartArea) return;
+    ctx.save();
+    ctx.fillStyle = opts?.color || "transparent";
+    ctx.fillRect(
+      chartArea.left,
+      chartArea.top,
+      chartArea.right - chartArea.left,
+      chartArea.bottom - chartArea.top
+    );
+    ctx.restore();
+  }
+};
+// Registra o plugin globalmente (requer Chart.js já carregado)
+if (typeof Chart !== "undefined") {
+  Chart.register(ChartBgPlugin);
+}
+
+/* ===== Helpers para Chart.js: impede “canvas infinito” ===== */
+function ensureChartWrap(canvas){
+  if(!canvas) return null;
+  let wrap = canvas.closest('.chart-wrap');
+  if(!wrap){
+    wrap = document.createElement('div');
+    wrap.className = 'chart-wrap';
+    wrap.style.position = 'relative';
+    wrap.style.width    = '100%';
+    // Insere o wrapper ao redor do canvas
+    canvas.parentNode.insertBefore(wrap, canvas);
+    wrap.appendChild(canvas);
+  }
+  return wrap;
+}
+function fixChartBox(canvas, desktopH = 360){
+  if(!canvas) return;
+  const wrap = ensureChartWrap(canvas);
+  const narrow = window.matchMedia('(max-width: 640px)').matches;
+  const h = narrow ? 260 : desktopH;
+  if (wrap.dataset.fixedHeight !== String(h)) {
+    wrap.style.height    = h + 'px';
+    wrap.style.maxHeight = '70vh';
+    canvas.style.width   = '100%';
+    canvas.style.height  = '100%';
+    canvas.style.display = 'block';
+    wrap.dataset.fixedHeight = String(h);
+  }
+}
+function resetCanvasSize(canvas){
+  if(!canvas) return;
+  canvas.removeAttribute('width');
+  canvas.removeAttribute('height');
+  canvas.style.width  = '100%';
+  canvas.style.height = '100%';
+}
+
+/* ===== Factory de gráfico — PADRONIZADO ===== */
+function makeLineChart(canvas, labels, datasets){
+  if(!canvas) return null;
+  fixChartBox(canvas);           // garante contêiner com altura fixa
+  resetCanvasSize(canvas);       // remove width/height inline do Chart.js
+
+  const ctx = canvas.getContext("2d");
+  const pal = chartPalette();
+
+  // injeta defaults de estilo em todos os datasets
+  const styled = (datasets||[]).map(ds => ({
+    borderWidth: 2,
+    fill: false,
+    spanGaps: true,
+    pointRadius: 0,          // sem marcadores (padrão global)
+    pointHitRadius: 8,
+    tension: 0.25,           // suavidade padronizada
+    ...ds                    // permite sobrescrever se precisar
+  }));
+
+  return new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets: styled },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,   // respeita altura do wrapper
+      resizeDelay: 120,
+      animation: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { labels: { color: pal.text } },
+        tooltip: {
+          callbacks: {
+            label: (c) => `${c.dataset.label}: ${fmtBR(c.parsed.y)}`
+          }
+        },
+        // 👇 aplica a cor de fundo da área do gráfico conforme o tema
+        chartAreaBackground: { color: pal.bg }
+      },
+      elements: {
+        point: { radius: 0, hitRadius: 8 },
+        line: { tension: 0.25 }
+      },
+      scales: {
+        x: {
+          grid:  { color: pal.grid },
+          ticks: { color: pal.tick, maxRotation: 0, autoSkip: true }
+        },
+        y: {
+          grid:  { color: pal.grid },
+          ticks: { color: pal.tick, callback: (v)=> fmtBR(v) },
+          beginAtZero: true,        // eixo Y sempre começa no zero
+          suggestedMin: 0
+        }
+      }
+    }
+  });
 }
 
 /****************************************
@@ -172,7 +292,8 @@ function createScope(viewId){
 registerCalc("placeholder", {
   title: "Em breve",
   mount(){ showView("view-placeholder"); },
-  unmount(){ /* nada */ }
+  unmount(){ /* nada */ },
+  refresh(){ /* nada */ }
 });
 
 /****************************************
@@ -199,6 +320,7 @@ registerCalc("juros-compostos", (function(){
   }
 
   function desenharGrafico(dataset){
+    const pal = chartPalette();
     const labels = dataset.linhas.map(l => `M${l.mes}`);
     let accAportes = Number($("#jcInicial").value||0);
     let accJuros = 0;
@@ -206,22 +328,13 @@ registerCalc("juros-compostos", (function(){
     const serieAportes  = dataset.linhas.map(l => accAportes += l.aporte);
     const serieJuros    = dataset.linhas.map(l => accJuros += l.juros);
 
-    const ctx = $("#jcChart").getContext("2d");
-    if(chart) chart.destroy();
-    chart = new Chart(ctx, {
-      type:"line",
-      data:{ labels, datasets:[
-        {label:"Montante", data:serieMontante, borderWidth:2, fill:false},
-        {label:"Aportes",  data:serieAportes,  borderWidth:2, fill:false},
-        {label:"Juros",    data:serieJuros,    borderWidth:2, fill:false},
-      ]},
-      options:{
-        responsive:true, animation:false,
-        interaction:{mode:"index", intersect:false},
-        plugins:{tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmtBR(c.parsed.y)}`}}},
-        scales:{y:{ticks:{callback:(v)=>fmtBR(v)}}}
-      }
-    });
+    const canvas = $("#jcChart");
+    if(chart){ chart.destroy(); chart=null; }
+    chart = makeLineChart(canvas, labels, [
+      {label:"Montante", data:serieMontante, borderWidth:2, borderColor:pal.series1},
+      {label:"Aportes",  data:serieAportes,  borderWidth:2, borderColor:pal.series2},
+      {label:"Juros",    data:serieJuros,    borderWidth:2, borderColor:pal.series3},
+    ]);
   }
 
   function atualizarKpis(out){
@@ -245,10 +358,8 @@ registerCalc("juros-compostos", (function(){
   // === EXPORTAR (CSV robusto) ===
   function exportar(){
     if(!lastResult) calcular();
-
     const {linhas, montante, totalAportes, jurosAcum} = lastResult;
     const toBRL = (n) => Number.isFinite(n) ? fmtBR(n) : String(n);
-
     const rows = [];
     rows.push(["Mês","Aporte","Juros do mês","Saldo ao final"]);
     for(const l of linhas){
@@ -258,18 +369,24 @@ registerCalc("juros-compostos", (function(){
     rows.push(["Montante","","",           toBRL(montante)]);
     rows.push(["Total Aportado","","",     toBRL(totalAportes)]);
     rows.push(["Juros Acumulados","","",   toBRL(jurosAcum)]);
-
     CSV.download(rows, "cronograma-juros-compostos.csv");
   }
+
+  const onResize = throttle(()=> fixChartBox($("#jcChart")), 200);
 
   return {
     title: "Juros Compostos",
     mount(){
       document.getElementById("psTableSection")?.classList.add("hidden");
       showView(viewId);
+
+      // garante wrapper/altura ANTES de desenhar
+      fixChartBox($("#jcChart"), 340);
+
       on($("#jcForm"),   "submit", calcular);
       on($("#jcExport"), "click",  exportar);
       on($("#jcSalvar"), "click", ()=>{ $(`.saved`).open = true; $("#saveName").focus(); });
+
       on($("#saveNow"), "click", ()=>{
         const name = ($("#saveName").value||"").trim();
         if(!name){ alert("Dê um nome ao cenário."); return; }
@@ -281,6 +398,7 @@ registerCalc("juros-compostos", (function(){
         arr.push({name,P,A,i,n,createdAt:Date.now()});
         localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
         $("#saveName").value="";
+        const idx = arr.length-1;
         $("#scenarioList").insertAdjacentHTML("beforeend", `
           <li>
             <div>
@@ -288,11 +406,12 @@ registerCalc("juros-compostos", (function(){
               <div class="meta">Inicial ${fmtBR(P)} • Aporte ${fmtBR(A)} • Taxa ${(i*100).toFixed(3)}% a.m. • ${n} meses</div>
             </div>
             <div class="row">
-              <button class="ghost" data-load="${(JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]").length-1)}">Aplicar</button>
-              <button class="ghost" data-del="${(JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]").length-1)}">Excluir</button>
+              <button class="ghost" data-load="${idx}">Aplicar</button>
+              <button class="ghost" data-del="${idx}">Excluir</button>
             </div>
           </li>`);
       });
+
       on($("#scenarioList"), "click", (e)=>{
         const b = e.target.closest("button"); if(!b) return;
         const arr = JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
@@ -330,11 +449,20 @@ registerCalc("juros-compostos", (function(){
         });
       })();
 
-      calcular(); // inicial
+      // calcula 1x no mount (como você queria)
+      calcular();
+
+      // ajusta altura ao redimensionar (sem loop)
+      on(window, "resize", onResize);
     },
     unmount(){
       if(chart){ chart.destroy(); chart=null; }
+      resetCanvasSize($("#jcChart"));
       offAll();
+    },
+    refresh(){
+      // re-renderiza com a paleta nova (tema)
+      if(lastResult) desenharGrafico(lastResult);
     }
   };
 })());
@@ -410,6 +538,15 @@ registerCalc("poupanca-selic", (function () {
     ["#psMontPoup","#psMontSelic","#psMontSelicLiq","#psDiff"]
       .forEach(sel=>{ const el=$(sel); if(el) el.textContent="—"; });
     if(chart){ chart.destroy(); chart=null; }
+
+    // Oculta o bloco do gráfico até recalcular
+    const wrap = $("#psChartWrap");
+    if (wrap){
+      wrap.classList.remove("has-chart");
+      wrap.classList.add("is-empty");
+      wrap.setAttribute("aria-hidden","true");
+    }
+
     const btn=$("#psExport");
     if(btn) btn.disabled=true;
     last=null;
@@ -442,18 +579,9 @@ registerCalc("poupanca-selic", (function () {
     }
   }
 
-  // formata 12.34 -> "12,34%"
-  function pctBR(x){
-    return `${(Number(x)||0).toLocaleString('pt-BR',{
-      minimumFractionDigits:2, maximumFractionDigits:2
-    })}%`;
-  }
-
-  // === Cabeçalho enriquecido do bloco de tabela ===
   function ensureEnhancedHeader(){
     const head = $("#psTableSection .table-head");
     if (!head) return;
-
     head.classList.add("enhanced", "centered");
     if (head.querySelector(".th-title")) return;
 
@@ -516,21 +644,24 @@ registerCalc("poupanca-selic", (function () {
   }
 
   function desenhar(labels, sPoup, sSelicLiq){
-    const ctx = $("#psChart").getContext("2d");
-    if(chart) chart.destroy();
-    chart = new Chart(ctx,{
-      type:"line",
-      data:{ labels, datasets:[
-        {label:"Poupança", data:sPoup, borderWidth:2, fill:false},
-        {label:"Selic (líquida)", data:sSelicLiq, borderWidth:2, fill:false}
-      ]},
-      options:{
-        responsive:true, animation:false,
-        interaction:{mode:"index", intersect:false},
-        plugins:{tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmtBR(c.parsed.y)}`}}},
-        scales:{y:{ticks:{callback:(v)=>fmtBR(v)}}}
-      }
-    });
+    const wrap = $("#psChartWrap");
+
+    // Revela o container ANTES de instanciar o Chart
+    if (wrap){
+      wrap.classList.remove("is-empty");
+      wrap.classList.add("has-chart");
+      wrap.removeAttribute("aria-hidden");
+    }
+
+    const canvas = $("#psChart");
+    if (chart){ chart.destroy(); chart = null; }
+
+    const pal = chartPalette();
+
+    chart = makeLineChart(canvas, labels, [
+      { label: "Poupança",        data: sPoup,      borderColor: pal.series2 },
+      { label: "Selic (líquida)", data: sSelicLiq,  borderColor: pal.series1 }
+    ]);
   }
 
   /* ===== Tabela paginada ===== */
@@ -631,10 +762,21 @@ registerCalc("poupanca-selic", (function () {
     center.append(prev, info, next);
   }
 
+  // Resumo (usado no botão "Copiar resumo")
+  function headerSummaryText(meses){
+    if(!last) return "";
+    return [
+      `Período: ${meses} mês(es)`,
+      `Poupança: ${fmtBR(last.finais.poup)}`,
+      `Selic (bruta): ${fmtBR(last.finais.selicBruta)}`,
+      `Selic (líquida): ${fmtBR(last.finais.selicLiq)}`,
+      `Diferença (Liq − Poup): ${fmtBR(last.finais.selicLiq - last.finais.poup)}`
+    ].join(" • ");
+  }
+
   /* ===== Cálculo ===== */
   function calcular(e){
     e && e.preventDefault();
-
     suppressInput = true;
 
     const P0 = Number($("#psInicial").value||0);
@@ -700,9 +842,7 @@ registerCalc("poupanca-selic", (function () {
   // === EXPORTAR (CSV robusto) ===
   function exportCSV(){
     if(!last) return;
-
     const toBRL = (n) => Number.isFinite(n) ? fmtBR(n) : String(n);
-
     const rows = [];
     rows.push(["Mês","Poupança","Selic (bruta)","Selic (líquida)"]);
     for(let i=0;i<last.labels.length;i++){
@@ -717,7 +857,6 @@ registerCalc("poupanca-selic", (function () {
     rows.push(["Montante Poupança","","", toBRL(last.finais.poup)]);
     rows.push(["Montante Selic (bruta)","","", toBRL(last.finais.selicBruta)]);
     rows.push(["Montante Selic (líquida)","","", toBRL(last.finais.selicLiq)]);
-
     CSV.download(rows, "poupanca-vs-selic.csv");
   }
 
@@ -742,15 +881,20 @@ registerCalc("poupanca-selic", (function () {
     }
   }
 
+  const onResize = throttle(()=> fixChartBox($("#psChart")), 200);
+
   return {
     title: "Poupança x Selic",
     mount(){
       document.getElementById("psTableSection")?.classList.remove("hidden");
       showView(viewId);
 
+      // garante wrapper/altura ANTES de desenhar
+      fixChartBox($("#psChart"), 340);
+
       on($("#psForm"),     "submit", (e)=>{ e.preventDefault(); calcular(); });
       on($("#psCalcular"), "click",  (e)=>{ e.preventDefault(); calcular(); });
-      on($("#psExport"),   "click",   exportCSV);
+      on($("#psExport"),   "click",  exportCSV);
 
       ["#psSelicAA","#psTR","#psPoupAA","#psInicial","#psAporte","#psPeriodo","#psUnidade"]
         .forEach(sel => on($(sel), "input", handleFieldChange));
@@ -777,7 +921,7 @@ registerCalc("poupanca-selic", (function () {
           }
         });
       }
-
+      
       on($("#psIRAtivo"), "input", handleIRToggle);
 
       on($("#psPrev"), "click", ()=>{ tableState.page--; renderTable(); });
@@ -814,13 +958,37 @@ registerCalc("poupanca-selic", (function () {
       const initPeriod = Number($("#psPeriodo").value||1);
       const initMeses  = ($("#psUnidade").value==="anos") ? initPeriod*12 : initPeriod;
       updateIRBadge(initMeses);
+
+      // ajusta altura ao redimensionar (sem loop)
+      on(window, "resize", onResize);
     },
     unmount(){
       if(chart){ chart.destroy(); chart=null; }
+      resetCanvasSize($("#psChart"));
       offAll();
       last = null;
       dirty = false;
       document.getElementById("psTableSection")?.classList.add("hidden");
+    },
+    refresh(){
+      if(last){
+        desenhar(last.labels, last.seriePoup, last.serieSelicLiq);
+      }
     }
   };
 })());
+
+/* ===== escopos auxiliares ===== */
+function createScope(viewId){
+  const base = `#${viewId}`;
+  const $  = (sel)=> document.querySelector(`${base} ${sel}`) || document.querySelector(sel);
+  const $$ = (sel)=>{
+    const scoped = document.querySelectorAll(`${base} ${sel}`);
+    if(scoped && scoped.length) return scoped;
+    return document.querySelectorAll(sel);
+  };
+  let listeners=[];
+  const on = (el,ev,fn)=>{ if(el){ el.addEventListener(ev,fn); listeners.push([el,ev,fn]); } };
+  const offAll = ()=>{ listeners.forEach(([el,ev,fn])=> el.removeEventListener(ev,fn)); listeners=[]; };
+  return { $, $$, on, offAll };
+}
