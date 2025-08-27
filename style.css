@@ -1825,3 +1825,58 @@ input, select, .input-std, .input-compact, .input-sm{
     margin-inline: auto;
   }
 }
+/* ======= Tabela: pager 100% no mobile (conserta o corte) ======= */
+
+/* no mobile empilha: [itens por página] em cima + [Anterior | Página X de Y | Próxima] embaixo */
+@media (max-width: 640px){
+  /* força GRID (sobrepõe a regra antiga com flex) */
+  #psTableSection #psPagerBottom{
+    display: grid !important;
+    grid-template-columns: 1fr;      /* 1 coluna */
+    row-gap: 8px;
+    width: 100%;
+  }
+
+  /* esquerda (itens por página) ocupa a linha toda e centraliza */
+  #psPagerBottom .pager-left{
+    justify-self: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* centro vira barra 100% com os botões nas pontas e o status no meio */
+  #psPagerBottom .pager-center{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;  /* Anterior | [Página X de Y] | Próxima */
+    gap: 8px;
+  }
+
+  /* texto do meio não quebra e encolhe antes de estourar */
+  #psPageInfo{
+    flex: 1 1 auto;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  /* botões um pouco mais compactos no phone */
+  #psPagerBottom .ghost{
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+}
+
+/* em telas médias voltamos ao layout em 2/3 colunas */
+@media (min-width: 640px){
+  #psTableSection #psPagerBottom{
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr;
+    column-gap: 12px;
+  }
+  #psPagerBottom .pager-left{ justify-self: start; }
+  #psPagerBottom .pager-center{ justify-self: center; }
+}
