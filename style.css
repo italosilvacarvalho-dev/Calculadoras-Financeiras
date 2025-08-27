@@ -1,0 +1,1595 @@
+:root{
+  --bg:#0f1115;
+  --panel:#161a22;
+  --muted:#8d95a5;
+  --text:#e6e9ef;
+  --brand:#6ee7b7;
+  --stroke:#212635;
+  --accent:#4ade80;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+  color:var(--text);
+  background: radial-gradient(1000px 600px at 100% -10%, #1b2130 0%, var(--bg) 40%);
+}
+
+/* Topbar */
+.topbar{position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--stroke); background:rgba(15,17,21,0.8); backdrop-filter:saturate(1.2) blur(10px)}
+.brand{display:flex; align-items:center; gap:12px}
+.brand .dot{width:10px; height:10px; background:var(--brand); border-radius:50%}
+.topbar h1{font-size:1.12rem; margin:0}
+.actions{display:flex; gap:10px}
+
+/* Buttons */
+button, .primary, .ghost{all:unset; display:inline-flex; align-items:center; justify-content:center; padding:10px 14px; border-radius:12px; cursor:pointer; border:1px solid var(--stroke); color:var(--text)}
+.primary{ background:linear-gradient(180deg, var(--accent), #2dd4bf); color:#0b0f14; border-color:transparent; font-weight:700}
+.primary:hover{filter:brightness(1.05)}
+.ghost:hover{background:#171b24}
+.badge{position:absolute; top:10px; right:10px; font-size:.7rem; color:#0b0f14; background:var(--accent); padding:4px 6px; border-radius:999px; font-weight:700}
+
+/* Layout */
+.container{max-width:1080px; margin:0 auto; padding:24px}
+.grid{display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr))}
+.card{position:relative; padding:28px; background:linear-gradient(0deg, #0e121b, #121827); border:1px solid var(--stroke); border-radius:18px; display:flex; flex-direction:column; gap:6px; align-items:flex-start; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease}
+.card:hover{transform:translateY(-2px); border-color:#2b3042; box-shadow:0 10px 24px rgba(0,0,0,.25)}
+.card .icon{font-size:28px}
+.card .title{opacity:.95}
+
+/* Panel */
+.panel{margin-top:22px; background:var(--panel); border:1px solid var(--stroke); border-radius:18px}
+.hidden{display:none}
+.panel-header{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--stroke)}
+.panel-body{padding:18px}
+.calc-placeholder{padding:12px; color:var(--muted)}
+
+/* Form */
+.form .row{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px}
+label{display:flex; flex-direction:column; gap:6px; font-size:.86rem; color:#c6cbd7}
+input, select{padding:12px 12px; background:#0e121b; border:1px solid #2a3246; color:var(--text); border-radius:12px; min-width:180px}
+input:focus, select:focus{outline:none; border-color:#3b82f6}
+
+/* KPIs */
+.metrics{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:14px 0 10px}
+.kpi{background:#101522; border:1px solid #253049; border-radius:14px; padding:12px 14px}
+.k-label{color:#99a2b3; font-size:.8rem}
+.k-val{display:block; font-weight:800; font-size:1.2rem; margin-top:2px}
+
+/* Saved scenarios */
+.saved summary{cursor:pointer; margin:10px 0; color:#c6cbd7}
+.save-row{display:flex; gap:8px; margin:8px 0 12px}
+.save-row input{flex:1}
+.scenario-list{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px}
+.scenario-list li{display:flex; gap:10px; align-items:center; justify-content:space-between; padding:10px 12px; border:1px solid #26314a; border-radius:12px; background:#0f1320}
+
+/* Footer */
+.footer{opacity:.65; font-size:.85rem; text-align:center; padding:26px 16px}
+
+/* Light theme */
+/* ===== Light theme (paleta refinada) ===== */
+.light{
+  /* Neutros frios “slate” de alta legibilidade */
+  --bg:#f7fafc;             /* fundo de página */
+  --panel:#ffffff;          /* cartões/painéis */
+  --text:#0f172a;           /* texto principal (slate-900) */
+  --muted:#475569;          /* texto secundário (slate-600) */
+  --stroke:#e2e8f0;         /* bordas (slate-200) */
+
+  /* Marca/realce (verde financeiro) */
+  --brand:#16a34a;          /* verde 600 (p/ detalhes) */
+  --accent:#22c55e;         /* verde 500 (CTA/realce) */
+
+  /* superfícies auxiliares */
+  --surface-1:#f8fafc;      /* “canvas” */
+  --surface-2:#eef2f7;      /* faixas/zebra sutil */
+  --shadow: 0 8px 24px rgba(2, 6, 23, .08);
+
+  /* BG com gradiente muito suave */
+  background: radial-gradient(1200px 720px at 100% -10%, #e9efff 0%, var(--bg) 48%);
+}
+
+/* Cartões, inputs e topbar no claro */
+.light .card{
+  background:var(--panel);
+  border-color:var(--stroke);
+  box-shadow: var(--shadow);
+}
+.light .card:hover{
+  transform: translateY(-2px);
+  border-color:#dbe3ee;
+  box-shadow: 0 12px 28px rgba(2,6,23,.12);
+}
+.light .topbar{
+  background: rgba(255,255,255,.85);
+  border-bottom-color: var(--stroke);
+  backdrop-filter: saturate(1.15) blur(10px);
+}
+.light input,.light select{
+  background:#fff;
+  border-color:#dbe3ee;
+  color:var(--text);
+}
+.light input::placeholder{ color:#94a3b8; }
+.light input:focus, .light select:focus{
+  border-color:#22c55e;
+  box-shadow:0 0 0 2px rgba(34,197,94,.20);
+}
+.light .kpi{
+  background:#ffffff;
+  border-color:#e8edf5;
+  box-shadow: var(--shadow);
+}
+
+/* Tabela (zebra/hover claros) */
+.light #psTableSection tbody tr:nth-child(odd){ background:#f8fafc; }
+.light #psTableSection tbody tr:hover{ background:#f1f5f9; }
+
+/* Chips/legenda do cabeçalho da tabela (se já estiverem no CSS, pode manter) */
+.th-legend{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:.9rem }
+.dot{ width:8px; height:8px; border-radius:50%; display:inline-block }
+.dot-poup{ background:#0ea5e9 }        /* azul p/ Poupança */
+.dot-selic{ background:#22c55e }       /* verde p/ Selic   */
+.chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:999px;
+  font-size:.85rem; font-weight:700;
+  background:rgba(34,197,94,.10); color:#065f46; border:1px solid rgba(34,197,94,.25)
+}
+.light .chip{ background:#eafaf1; color:#065f46; border-color:#c7f0d7 }
+
+/* Linha de separação abaixo do título refinada */
+.table-head.enhanced{ padding-bottom:10px; border-bottom:1px dashed var(--stroke); }
+
+
+/* Espaçamento geral entre sections da calculadora */
+.form details{ 
+  margin: 12px 0 14px;
+}
+
+/* Accordion "card" */
+details{
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.02);
+  overflow: hidden; /* arredonda o sumário quando aberto */
+}
+
+/* Cabeçalho do accordion */
+details > summary{
+  cursor: pointer;
+  padding: 12px 14px;
+  font-weight: 600;
+  color: var(--text);
+  list-style: none; /* remove triângulo padrão em alguns navegadores */
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* Linha sutil quando aberto */
+details[open] > summary{
+  border-bottom: 1px solid var(--stroke);
+}
+
+/* Corpo do accordion */
+.details-body{
+  padding: 12px 14px 14px; /* respiro interno */
+}
+
+/* Melhor alinhamento do checkbox e da dica */
+label.check{
+  display: flex; align-items: center; gap: 10px;
+  min-width: 260px;
+}
+label.check input[type="checkbox"]{
+  width: 18px; height: 18px; accent-color: var(--accent);
+}
+
+.hint{
+  color: var(--muted);
+  font-size: .86rem;
+  line-height: 1.3;
+}
+
+/* Ajustes nas linhas internas para não "grudar" nas bordas */
+.details-body .row{
+  margin: 4px 0 0;
+  gap: 14px;
+}
+
+/* Opcional: afasta os botões do accordion anterior */
+.form .row + details{ 
+  margin-top: 16px;
+}
+
+details input, details select{
+  border-radius: 10px;
+}
+
+/* Inputs mais amigáveis */
+input, select{
+  padding: 14px 14px;
+  background:#0e121b;
+  border:1px solid #2a3246;
+  color:var(--text);
+  border-radius:14px;
+  min-width:180px;
+  font-size:.95rem;
+  transition: all .2s ease;
+}
+
+input::placeholder{
+  color: var(--muted);
+  font-size:.85rem;
+}
+
+input:focus, select:focus{
+  outline:none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(74,222,128,0.25);
+}
+
+/* Remover setinhas dos number inputs (mais clean) */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number]{ -moz-appearance: textfield; }
+
+.input-prefix{
+  display:flex; align-items:center; gap:6px;
+  background:#0e121b;
+  border:1px solid #2a3246;
+  border-radius:14px;
+  padding: 0 12px;
+}
+.input-prefix span{color:var(--muted); font-size:.9rem}
+.input-prefix input{
+  border:0; flex:1; background:transparent; padding:12px 0;
+}
+/* Tooltip simples */
+.tooltip{
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  font-size: .9rem;
+  color: var(--muted);
+}
+
+.tooltip:hover::after,
+.tooltip:focus::after{
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%; top: 120%;
+  transform: translateX(-50%);
+  background: #1e2535;
+  color: #e6e9ef;
+  font-size: .8rem;
+  line-height: 1.3;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--stroke);
+  white-space: pre-line;
+  min-width: 220px;
+  max-width: 320px;
+  z-index: 30;
+  box-shadow: 0 4px 14px rgba(0,0,0,.4);
+}
+
+/* Alinhar itens verticalmente */
+.align-center{
+  align-items: center;
+}
+
+/* Checkbox + texto + tooltip em linha */
+.check-inline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top: 26px; /* alinha com input da esquerda */
+  white-space: nowrap;
+  font-size:.9rem;
+  color: var(--muted);
+}
+.check-inline input[type="checkbox"]{
+  width:18px; height:18px; accent-color: var(--accent);
+}
+.check-inline .tooltip{ font-size:.9rem; }
+
+/* Ajusta row com 2 colunas largas */
+.row > label{
+  flex:1;
+  min-width:200px;
+}
+
+/* Helpers já usados na seção Taxas */
+.align-center{ align-items: center; }
+.check-inline{
+  display:flex; align-items:center; gap:8px;
+  white-space:nowrap; font-size:.9rem; color:var(--muted);
+}
+.check-inline input[type="checkbox"]{ width:18px; height:18px; accent-color:var(--accent); }
+.check-inline .tooltip{ font-size:.9rem; }
+
+/* Novos utilitários para layout da linha de impostos */
+.between{ justify-content: space-between; }
+.wrap{ flex-wrap: wrap; gap: 10px 14px; }     /* linha quebra bem em telas menores */
+.nowrap{ white-space: nowrap; }
+
+/* Melhor respiro entre acordeões */
+.form details{ margin: 14px 0 16px; }
+
+/* Responsivo: empilha checkbox e legenda quando a tela é estreita */
+@media (max-width: 720px){
+  .nowrap{ white-space: normal; }
+  .check-inline{ margin-top: 4px; }
+  .between{ justify-content: flex-start; }
+}
+
+/* Coluna vertical dentro do bloco */
+.row-col{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+/* Caixa da tabela IR */
+.ir-box{
+  background:#101522;
+  border:1px solid #26314a;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:.85rem;
+  color:var(--muted);
+  line-height:1.4;
+}
+.ir-box strong{
+  color:var(--text);
+  font-size:.86rem;
+}
+.ir-box span{white-space:nowrap;}
+
+.form-section{ 
+  margin: 16px 0;
+  padding: 14px 16px;
+  border:1px solid var(--stroke);
+  border-radius:12px;
+  background: rgba(255,255,255,0.02);
+}
+.form-section h4{
+  margin:0 0 10px; 
+  font-size:.95rem; 
+  font-weight:600; 
+  color:var(--text);
+}
+
+.hint.small{
+  font-size:.8rem;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+/* ==== Seção única em grid (Taxas + IR) ==== */
+.form-section{
+  margin: 14px 0 12px;
+  padding: 14px 16px;
+  border:1px solid var(--stroke);
+  border-radius:12px;
+  background:rgba(255,255,255,0.02);
+}
+.form-section h4{ margin:0 0 10px; font-size:.95rem; font-weight:600 }
+
+.section-grid{
+  display:grid;
+  grid-template-columns: 1fr 320px;  /* esquerda cresce, direita fixa */
+  gap:16px;
+}
+.section-grid .col{ min-width:0 }
+.ir-card{
+  background:#101522;
+  border:1px solid #26314a;
+  border-radius:12px;
+  padding:12px 14px;
+}
+.ir-head{ display:flex; align-items:center; justify-content:space-between; gap:10px }
+
+/* Responsivo: empilha quando a tela estreitar */
+@media (max-width: 860px){
+  .section-grid{ grid-template-columns: 1fr; }
+}
+
+/* ==== Inputs mais compactos ==== */
+.input-sm{
+  padding: 10px 12px;
+  border-radius: 12px;
+  min-width: 140px;     /* menor que antes */
+  max-width: 260px;     /* evita ficar enorme em telas largas */
+  width: 100%;
+  font-size: .92rem;
+}
+
+/* placeholder e foco permanecem como antes */
+.input-sm::placeholder{ color:var(--muted); font-size:.85rem }
+
+/* ==== Linhas/arranjos ==== */
+.align-center{ align-items:center }
+.row > label{ flex:1; min-width:160px }
+
+/* ==== Switch/checkboxes inline (compactos) ==== */
+.check-inline, .switch-inline{
+  display:flex; align-items:center; gap:8px; white-space:nowrap;
+  color: var(--muted); font-size:.9rem;
+}
+.check-inline input[type="checkbox"],
+.switch-inline input[type="checkbox"]{
+  width:18px; height:18px; accent-color: var(--accent);
+}
+
+/* Tooltip já existente funciona aqui também */
+/* ===== Grid refinado ===== */
+.section-grid.refino{
+  display:grid;
+  grid-template-columns: 1fr 340px;
+  gap:16px;
+  align-items:stretch;
+}
+@media (max-width: 900px){
+  .section-grid.refino{ grid-template-columns: 1fr; }
+}
+
+/* blocos */
+.taxes h4, .ir-card h4{ margin:0 0 8px; font-size:.95rem; font-weight:600 }
+.fields-2{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+}
+@media (max-width: 640px){
+  .fields-2{ grid-template-columns: 1fr; }
+}
+
+/* inputs menores e proporcionais */
+.field-sm{ display:flex; flex-direction:column; gap:6px }
+.input-sm{
+  padding:10px 12px;
+  border-radius:12px;
+  min-width:120px;
+  max-width:100%;
+  font-size:.92rem;
+}
+.input-sm::placeholder{ color:var(--muted); font-size:.85rem }
+
+/* ===== Switch (checkbox estilizado) ===== */
+.switch{
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--muted); white-space:nowrap; user-select:none;
+}
+.switch input{ display:none }
+.switch .slider{
+  width:42px; height:24px; border-radius:999px;
+  background:#2a3246; position:relative; transition:.2s;
+  border:1px solid #2f374d;
+}
+.switch .slider::after{
+  content:""; position:absolute; top:2px; left:2px;
+  width:18px; height:18px; border-radius:50%;
+  background:#cbd5e1; transition:.2s;
+}
+.switch input:checked + .slider{
+  background:linear-gradient(180deg, var(--accent), #2dd4bf);
+  border-color:transparent;
+}
+.switch input:checked + .slider::after{
+  transform: translateX(18px); background:#0b0f14;
+}
+.switch .switch-text{ font-size:.9rem }
+
+/* tooltip já existente funciona; reduz um pouco no switch */
+.switch .tooltip{ font-size:.85rem }
+
+/* ===== Card IR com realce quando ativo ===== */
+.ir-card{
+  background:#101522;
+  border:1px solid #26314a;
+  border-radius:12px;
+  padding:12px 14px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.ir-head{ display:flex; align-items:center; justify-content:space-between; gap:10px }
+
+/* destaque automático usando :has (moderno) */
+.ir-card:has(#psIRAtivo:checked){
+  border-color: rgba(34,197,94,.6);
+  box-shadow: 0 0 0 2px rgba(34,197,94,.15) inset;
+}
+
+.ir-hint{
+  margin:0; color:var(--muted); font-size:.85rem; line-height:1.35;
+}
+.ir-hint span{ white-space:nowrap }
+
+/* alinhamentos utilitários */
+.align-center{ align-items:center }
+
+/* Botão de edição do campo Taxa Poupança */
+.edit-btn{
+  position:absolute;
+  right:8px; bottom:8px;
+  font-size:.85rem;
+  background:none;
+  border:0;
+  cursor:pointer;
+  color:var(--muted);
+  transition:color .2s;
+}
+.edit-btn:hover{ color:var(--accent); }
+
+/* === Grid padronizado === */
+.top-fields{
+  display:grid; gap:12px;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+}
+@media (max-width: 980px){ .top-fields{ grid-template-columns: repeat(2, minmax(180px, 1fr)); } }
+@media (max-width: 560px){ .top-fields{ grid-template-columns: 1fr; } }
+
+.fields-2{
+  display:grid; gap:12px;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+}
+@media (max-width: 640px){ .fields-2{ grid-template-columns: 1fr; } }
+
+/* === Inputs padronizados === */
+.input-std{
+  padding:12px 14px;
+  border-radius:12px;
+  font-size:.95rem;
+  width:100%;
+}
+
+/* Switch IR em linha (sem box) */
+.ir-inline{
+  margin: 6px 0 10px;
+  padding-top: 6px;
+  border-top: 1px dashed #2a3246;
+}
+
+.top-fields{
+  display:grid; gap:12px;
+  grid-template-columns: repeat(4, minmax(180px,1fr));
+}
+@media (max-width:980px){ .top-fields{ grid-template-columns: repeat(2, minmax(180px,1fr)); } }
+@media (max-width:560px){ .top-fields{ grid-template-columns: 1fr; } }
+
+.fields-2{
+  display:grid; gap:12px;
+  grid-template-columns: repeat(2, minmax(200px,1fr));
+}
+@media (max-width:640px){ .fields-2{ grid-template-columns: 1fr; } }
+
+.input-std{ padding:12px 14px; border-radius:12px; font-size:.95rem; width:100%; }
+
+.ir-inline{ margin:6px 0 10px; padding-top:6px; border-top:1px dashed #2a3246; }
+
+.actions{ gap:12px; }
+button:disabled, .ghost:disabled{ opacity:.5; cursor:not-allowed; }
+
+/* Limita a largura visual da seção para não “espalhar” demais */
+.form-section.compact{
+  max-width: 980px;           /* ajuste fino: 880–1040px */
+  margin-inline: auto;
+}
+
+/* Grid enxuto das taxas */
+.taxes-grid{
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  align-items: end;
+}
+
+/* Taxa Poupança ocupa 2 colunas abaixo (fica proporcional) */
+.taxes-grid .span2{ grid-column: span 2; }
+
+/* Inputs realmente menores e consistentes */
+.input-compact{
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: .92rem;
+  width: 100%;
+  max-width: 280px;           /* <- não cresce além disso em telas largas */
+}
+
+/* Responsivo */
+@media (max-width: 1024px){
+  .taxes-grid{ grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+  .taxes-grid .span2{ grid-column: span 2; }
+}
+@media (max-width: 560px){
+  .taxes-grid{ grid-template-columns: 1fr; }
+  .taxes-grid .span2{ grid-column: auto; }
+}
+
+/* Botão ✏️ já existente — reposicionado dentro do input */
+.edit-btn{
+  position: absolute;
+  right: 8px; bottom: 8px;
+  font-size: .85rem;
+  background: none; border: 0; cursor: pointer;
+  color: var(--muted);
+}
+.edit-btn:hover{ color: var(--accent); }
+
+/* Seção não estica demais */
+.form-section.compact{ max-width: 980px; margin-inline:auto; }
+
+/* Grid das taxas (3 cols) */
+.taxes-grid{
+  display:grid; gap:12px;
+  grid-template-columns: repeat(3, minmax(160px,1fr));
+  align-items:end;
+}
+
+/* IR sob TR (mesma coluna do TR) */
+.under-tr{ grid-column: 2; margin-top: -2px; }
+
+.taxes-grid .span2{ grid-column: span 2; }
+
+/* Inputs menores */
+.input-compact{
+  padding:10px 12px;
+  border-radius:12px;
+  font-size:.92rem;
+  width:100%;
+  max-width: 280px;
+}
+
+/* Responsivo */
+@media (max-width:1024px){
+  .taxes-grid{ grid-template-columns: repeat(2, minmax(160px,1fr)); }
+  .under-tr{ grid-column: 2; }
+  .taxes-grid .span2{ grid-column: span 2; }
+}
+@media (max-width:560px){
+  .taxes-grid{ grid-template-columns: 1fr; }
+  .under-tr{ grid-column: 1; }
+  .taxes-grid .span2{ grid-column: 1; }
+}
+#psPoupAA.locked { cursor: text; opacity: .9; }
+#psPoupAA[readonly].locked { box-shadow: inset 0 0 0 1px #2f374d; }
+
+/* Seção mais contida */
+.form-section.taxes-v2{ max-width: 860px; margin-inline:auto; }
+
+/* Grid 2 colunas: esquerda (Selic+Poup), direita (TR+IR) */
+.taxes-grid-v2{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+  align-items:start;
+}
+.taxes-col{ display:grid; gap:12px; }
+
+/* Inputs menores e consistentes */
+.input-compact{
+  padding:10px 12px;
+  border-radius:12px;
+  font-size:.92rem;
+  width:100%;
+  max-width: 320px;
+}
+
+/* IR em linha, compacto e alinhado à TR */
+.ir-inline-v2{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 12px;
+  border:1px solid var(--border, #2a3246);
+  background: var(--surface-2, rgba(255,255,255,0.02));
+  border-radius:12px;
+  width: fit-content;
+}
+.ir-title{ font-size:.95rem; }
+
+/* Responsivo */
+@media (max-width: 920px){
+  .form-section.taxes-v2{ max-width: 100%; }
+  .input-compact{ max-width: 100%; }
+}
+@media (max-width: 640px){
+  .taxes-grid-v2{ grid-template-columns: 1fr; }
+  .ir-inline-v2{ width: 100%; justify-content: space-between; }
+}
+
+.results-table { margin-top: 16px; }
+.results-table .table-head{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;
+}
+.results-table .pager{ display:flex; align-items:center; gap:10px; }
+.results-table table{ width:100%; border-collapse:collapse; font-size:.95rem; }
+.results-table th, .results-table td{ padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.06); }
+.results-table .striped tbody tr:nth-child(odd){ background:rgba(255,255,255,.02); }
+.results-table .compact td{ white-space:nowrap; }
+/* tabela do detalhe mensal */
+#psTableSection .table-wrap { overflow-x: auto; }
+#psTableSection table { width: 100%; border-collapse: collapse; }
+
+#psTableSection th,
+#psTableSection td {
+  text-align: center;          /* <- centraliza tudo */
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+
+/* paginação embaixo e centralizada */
+#psPager {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12px;            /* espaço depois da tabela */
+}
+
+#psPager .ghost[disabled] { opacity: .5; cursor: not-allowed; }
+
+#psTableSection th, #psTableSection td { text-align: center; }
+#psPagerBottom { display:flex; gap:12px; justify-content:center; align-items:center; margin-top:12px; }
+
+/* ============ Detalhe mensal — tabela + paginação ============ */
+
+/* wrapper horizontal (mantém sticky funcionando) */
+#psTableSection .table-wrap{
+  overflow-x: auto;
+}
+
+/* tabela base */
+#psTableSection table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .95rem;
+}
+
+/* centraliza conteúdo + separadores */
+#psTableSection th,
+#psTableSection td{
+  text-align: center;
+  padding: 12px 16px;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+/* cabeçalho “grudado” (fica sempre visível) */
+#psTableSection thead th{
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--panel);
+  box-shadow: 0 1px 0 rgba(0,0,0,.18);
+}
+
+/* zebra + hover para legibilidade */
+#psTableSection tbody tr:nth-child(odd){
+  background: rgba(255,255,255,.02);
+}
+#psTableSection tbody tr:hover{
+  background: rgba(255,255,255,.04);
+}
+
+/* tema claro */
+.light #psTableSection th,
+.light #psTableSection td{
+  border-bottom-color: #edf0f6;
+}
+.light #psTableSection tbody tr:nth-child(odd){
+  background: #fafbff;
+}
+.light #psTableSection tbody tr:hover{
+  background: #f2f6ff;
+}
+
+/* ===== Paginação no rodapé (centralizada) ===== */
+#psPagerBottom{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;         /* espaço após a tabela */
+}
+
+#psPagerBottom .ghost{
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+#psPagerBottom .ghost[disabled]{
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+#psPagerBottom .muted{
+  opacity: .75;
+  font-size: .95rem;
+}
+
+/* (opcional) seletor “itens por página” com look dos inputs */
+#psPerPage{
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #0e121b;
+  border: 1px solid #2a3246;
+  color: var(--text);
+}
+#psPerPage:focus{
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(74,222,128,0.25);
+}
+.light #psPerPage{
+  background: #fff;
+  border-color: #dfe3eb;
+  color: #0b1020;
+}
+/* === Pager da tabela: sempre centralizado e na largura toda === */
+#psPagerBottom,
+#psPager {                       /* cobre os dois ids, caso seu HTML use um deles */
+  display: flex !important;      /* garante flex mesmo se um pai mexer nisso */
+  justify-content: center !important;
+  align-items: center;
+  gap: 12px;
+  width: 100%;                   /* vira uma “linha” completa */
+  margin-top: 12px;              /* respiro após a tabela */
+}
+
+/* botões e estado desabilitado */
+#psPagerBottom .ghost,
+#psPager .ghost {
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+#psPagerBottom .ghost[disabled],
+#psPager .ghost[disabled] {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* texto “Página X de Y” com leve suavização */
+#psPagerBottom .muted,
+#psPager .muted {
+  opacity: .75;
+  font-size: .95rem;
+}
+
+/* Rodapé da tabela: seletor à esquerda e pager central */
+#psTableSection #psPagerBottom{
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr; /* [esq] [centro] [dir]  */
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  justify-content: initial !important; /* cancela o center herdado */
+}
+
+/* contêineres internos */
+#psPagerBottom .pager-left{
+  justify-self: start;
+  display: inline-flex; 
+  gap: 8px; 
+  align-items: center;
+}
+#psPagerBottom .pager-center{
+  justify-self: center;
+  display: inline-flex; 
+  gap: 12px; 
+  align-items: center;
+}
+
+/* ===== Detalhe mensal — cabeçalho enriquecido ===== */
+#psTableSection .table-head.enhanced{
+  display:block;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--stroke);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+#psTableSection .th-left{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  align-items:flex-start;
+  min-width:0;
+}
+
+/* Título + ícone + chip (1ª linha) */
+#psTableSection .th-title{
+  display:flex; align-items:center; gap:10px;
+}
+#psTableSection .th-title h4{
+  margin:0; font-size:1.1rem; letter-spacing:.2px;
+}
+#psTableSection .th-icon{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:8px;
+  background: linear-gradient(180deg, #3b82f6, var(--accent));
+  color:#0b0f14; font-size:14px; box-shadow:0 6px 18px rgba(34,197,94,.18);
+}
+
+/* “chip” de status do IR */
+#psTableSection .chip{
+  padding:4px 8px; border-radius:999px;
+  font-size:.8rem; font-weight:700; letter-spacing:.2px;
+  background: rgba(34,197,94,.12);
+  border: 1px solid rgba(34,197,94,.35);
+  color: var(--text);
+}
+
+/* (opcional) estados visuais se quiser ligar via JS */
+#psTableSection .chip.on{
+  background: linear-gradient(180deg, var(--accent), #2dd4bf);
+  border-color: transparent; color:#0b0f14;
+}
+#psTableSection .chip.off{
+  background: rgba(255,255,255,.05);
+  border-color:#26314a; color: var(--muted);
+}
+
+/* Metadados (2ª linha) */
+#psTableSection .th-meta{
+  color: var(--muted);
+  font-size:.94rem;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+#psTableSection .th-meta .sep{ opacity:.45 }
+
+/* Tema claro */
+.light #psTableSection .table-head.enhanced{
+  background: linear-gradient(180deg, rgba(0,0,0,0.015), transparent);
+}
+.light #psTableSection .chip{
+  background: rgba(34,197,94,.12);
+  border-color: rgba(34,197,94,.35);
+}
+.light #psTableSection .chip.off{
+  background:#fff; border-color:#e6e9f0; color:#667084;
+}
+
+/* Responsivo */
+@media (max-width: 720px){
+  #psTableSection .th-title h4{ font-size:1rem }
+  #psTableSection .th-meta{ font-size:.9rem }
+}
+
+/* ===== Cabeçalho Detalhe mensal — upgrades ===== */
+#psTableSection .table-head.enhanced.centered{
+  text-align:center;
+  display:flex; flex-direction:column; align-items:center;
+}
+
+#psTableSection .th-legend{
+  display:flex; align-items:center; gap:10px;
+  margin-top: 6px;
+  color: var(--muted); font-size:.9rem;
+}
+#psTableSection .th-legend .dot{
+  width:10px; height:10px; border-radius:50%;
+  display:inline-block; box-shadow:0 0 0 2px rgba(0,0,0,.15) inset;
+}
+#psTableSection .th-legend .dot-poup{ background:#3b82f6; }     /* Poupança */
+#psTableSection .th-legend .dot-selic{ background:var(--accent);}/* Selic (líq.) */
+
+#psTableSection .stat{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 8px; border-radius:999px;
+  background:rgba(255,255,255,.05);
+  border:1px solid #26314a;
+  font-size:.82rem; color:var(--text);
+}
+.light #psTableSection .stat{
+  background:#fff; border-color:#e6e9f0; color:#0b1020;
+}
+
+/* botão copiar */
+#psTableSection .copy-btn{
+  all:unset; cursor:pointer;
+  padding:6px 10px; border-radius:10px;
+  border:1px solid var(--stroke); color:var(--muted);
+}
+#psTableSection .copy-btn:hover{ color:var(--text); background:rgba(255,255,255,.05) }
+.light #psTableSection .copy-btn:hover{ background:#f6f8ff }
+
+/* =========================================================
+   AJUSTES FINAIS — TEMA CLARO + TOGGLE DE TEMA (☀️/🌙)
+   Cole no final do CSS para sobrepor com segurança
+   ========================================================= */
+
+/* ---------- Surfaces e sombras coerentes ---------- */
+:root{
+  --surface-1: #0f1115;
+  --surface-2: #121622;
+  --shadow: 0 14px 30px rgba(0,0,0,.28);
+}
+.light{
+  --surface-1:#ffffff;
+  --surface-2:#f8fafc;
+  --shadow: 0 10px 26px rgba(2,6,23,.10);
+}
+
+/* ---------- Topbar em ambos os temas ---------- */
+.topbar{
+  transition: background .2s ease, border-color .2s ease;
+}
+.light .topbar{
+  background: rgba(255,255,255,.9);
+  border-bottom-color: var(--stroke);
+  box-shadow: 0 6px 20px rgba(2,6,23,.06);
+}
+
+/* ---------- Cards (hover/contraste no claro) ---------- */
+.light .card{
+  background: var(--panel);
+  border-color: var(--stroke);
+  box-shadow: var(--shadow);
+}
+.light .card:hover{
+  border-color: #dfe6f2;
+  box-shadow: 0 14px 34px rgba(2,6,23,.14);
+}
+
+/* ---------- Botões ---------- */
+.primary{
+  transition: filter .2s ease, transform .04s ease;
+}
+.primary:active{ transform: translateY(1px) }
+.ghost{ transition: background .15s ease, color .15s ease; }
+.light .ghost:hover{ background: #f3f6fb; }
+
+/* ---------- Foco acessível ---------- */
+:where(button,.ghost,.primary,select,input)#themeToggle:focus-visible,
+:where(button,.ghost,.primary,select,input):focus-visible{
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.25);
+  border-color: var(--accent);
+}
+
+/* =========================================================
+   TOGGLE DE TEMA (usa o #themeToggle existente no HTML)
+   - pílula com polegar animado
+   - ícones via ::after (🌙/☀️)
+   - muda sozinho quando <body> recebe .light (seu JS já faz isso)
+   ========================================================= */
+#themeToggle{
+  /* dimensões da pílula */
+  --w: 56px; --h: 30px; --pad: 3px;
+  all: unset;
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, #1a2030, #0f131e);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  display: inline-block;
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+#themeToggle:hover{ filter: brightness(1.05) }
+
+/* polegar */
+#themeToggle::before{
+  content: "";
+  position: absolute;
+  top: var(--pad);
+  left: var(--pad);
+  width: calc(var(--h) - var(--pad) * 2);
+  height: calc(var(--h) - var(--pad) * 2);
+  border-radius: 50%;
+  background: #cbd5e1;                /* thumb no dark */
+  box-shadow: 0 3px 10px rgba(0,0,0,.35);
+  transition: transform .25s cubic-bezier(.2,.8,.2,1), background .2s;
+}
+
+/* ícone */
+#themeToggle::after{
+  content: "🌙";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.25));
+  user-select: none;
+}
+
+/* estado claro */
+.light #themeToggle{
+  background: linear-gradient(180deg, #ffffff, #f4f7fb);
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 18px rgba(2,6,23,.08);
+}
+.light #themeToggle::before{
+  transform: translateX(calc(var(--w) - var(--h)));
+  background: #0b0f14;                 /* thumb escuro p/ contraste */
+}
+.light #themeToggle::after{
+  content: "☀️";
+  left: auto;
+  right: 10px;
+}
+
+/* label textual opcional do botão (caso exista) */
+#themeToggle .label{ display:none } /* mantemos apenas a pílula visual */
+
+/* foco do toggle */
+#themeToggle:focus-visible{
+  box-shadow: 0 0 0 3px rgba(34,197,94,.25);
+}
+
+/* ---------- “Tema” na topbar: mantém alinhado visualmente ---------- */
+.actions{ gap: 10px }
+.actions #themeToggle{ margin-left: 2px }
+
+/* =========================================================
+   Tabela — pequenos refinamentos no claro
+   ========================================================= */
+.light #psTableSection thead th{
+  background: #fff;
+  box-shadow: 0 1px 0 #e6ebf3;
+}
+.light #psTableSection tbody tr:nth-child(odd){ background:#f8fbff }
+.light #psTableSection tbody tr:hover{ background:#eef5ff }
+
+/* Cabeçalho enriquecido: realces equilibrados no claro */
+.light #psTableSection .table-head.enhanced{
+  border-bottom-color: #e7edf6;
+}
+.light #psTableSection .th-icon{
+  background: linear-gradient(180deg, #93c5fd, #22c55e);
+  color: #0b0f14;
+  box-shadow: 0 6px 18px rgba(2,6,23,.12);
+}
+
+/* Chip “IR regressivo” com contraste OK nos dois temas */
+#psTableSection .chip{
+  color: #0f172a;
+}
+.light #psTableSection .chip{
+  background:#eafaf1; border-color:#bff0d1; color:#065f46;
+}
+
+/* Diferença/estatística: leve “pill” no escuro e claro */
+#psTableSection .stat{
+  background: rgba(255,255,255,.06);
+  border: 1px solid #2a3144;
+}
+.light #psTableSection .stat{
+  background: #fff;
+  border-color: #e6e9f0;
+  color: #0f172a;
+}
+
+/* =========================================================
+   Pequenos toques de UX
+   ========================================================= */
+button:disabled, .ghost:disabled{
+  opacity:.55; cursor:not-allowed; filter: grayscale(.2);
+}
+.brand .dot{ box-shadow: 0 0 0 3px rgba(34,197,94,.18) }
+
+/* Em telas muito estreitas, o cabeçalho da tabela fica centralizado */
+@media (max-width: 600px){
+  #psTableSection .table-head.enhanced{ text-align:center }
+  #psTableSection .th-left{ align-items:center }
+}
+#themeToggle{ font-size:0; padding:0; }
+#themeToggle::after{ font-size:14px; } /* mantém o tamanho do ícone */
+
+/* container do controle */
+.theme-control{
+  display:inline-flex;          /* alinha na horizontal */
+  align-items:center;           /* centraliza verticalmente */
+  gap:10px;
+}
+
+/* texto “Tema” */
+.theme-control .theme-label{
+  font-size: .95rem;
+  color: var(--text);
+  line-height: 1;               /* evita “saltar” verticalmente */
+  margin: 0;
+}
+
+/* garante que o toggle participe do alinhamento */
+#themeToggle{
+  display:inline-block;
+  vertical-align: middle;
+}
+
+/* =========================================================
+   Toggle de tema — knob com ícone centralizado
+   (drop-in: cola no FINAL do CSS)
+   ========================================================= */
+
+/* trilho */
+#themeToggle{
+  --w: 56px;        /* largura do trilho */
+  --h: 30px;        /* altura do trilho (e do knob) */
+  --pad: 3px;       /* margem interna do trilho */
+  all: unset;
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, #1a2030, #0f131e);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  display: inline-block;
+  vertical-align: middle;
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+/* acessibilidade */
+#themeToggle:focus-visible{
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.25);
+  border-color: var(--accent);
+}
+
+/* knob + ícone (CENTRALIZADO) */
+#themeToggle::before{
+  content: "🌙";                        /* ícone padrão (tema escuro) */
+  position: absolute;
+  top: var(--pad);
+  left: var(--pad);
+  width: calc(var(--h) - var(--pad) * 2);
+  height: calc(var(--h) - var(--pad) * 2);
+  border-radius: 50%;
+  background: #dbe3ef;                  /* cor do knob */
+  box-shadow: 0 3px 10px rgba(0,0,0,.35);
+  transition: transform .25s cubic-bezier(.2,.8,.2,1), background .2s;
+  display: grid;                         /* centraliza o emoji dentro do knob */
+  place-items: center;
+  font-size: 16px;
+  line-height: 1;
+  will-change: transform;
+}
+
+/* remove qualquer ícone antigo aplicado no ::after */
+#themeToggle::after{ content: none !important; }
+
+/* estado claro */
+.light #themeToggle{
+  background: linear-gradient(180deg, #ffffff, #f4f7fb);
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 18px rgba(2,6,23,.08);
+}
+.light #themeToggle::before{
+  content: "☀️";                        /* troca para sol */
+  transform: translateX(calc(var(--w) - var(--h)));
+  background: #0b0f14;                  /* knob escuro p/ contraste no claro */
+}
+
+/* hover sutil */
+#themeToggle:hover{ filter: brightness(1.05); }
+
+/* --------- alinhamento com o texto “Tema” --------- */
+.theme-control{                      /* se estiver usando esse wrapper */
+  display: inline-flex;
+  align-items: center;               /* centraliza verticalmente */
+  gap: 10px;
+}
+.theme-control .theme-label{
+  margin: 0;
+  line-height: 1;                    /* evita “pular” */
+  color: var(--text);
+  font-size: .95rem;
+}
+
+/* na topbar, garanta alinhamento */
+.actions{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+/* =========================
+   CONTRASTE — TEMA CLARO
+   ========================= */
+
+/* labels e textos fracos estavam cinza demais no claro */
+.light label{ color:#334155 !important; }                /* slate-700 */
+.light .k-label,
+.light .hint,
+.light .muted,
+.light .check-inline,
+.light details > summary{ color:#475569 !important; }    /* slate-600 */
+.light .footer{ color:#334155; opacity:.8; }
+
+/* placeholders um pouco mais escuros p/ legibilidade */
+.light input::placeholder,
+.light select::placeholder{ color:#64748b; }             /* slate-500 */
+
+/* botões/“ghosts” e textos internos do pill do IR com contraste */
+.light .ghost{ color:#0f172a; }
+.light .ir-inline-v2{ color:#0f172a; border-color:#e2e8f0; }
+
+/* badge/legendas do bloco de tabela */
+.light #psTableSection .th-meta{ color:#475569; }
+.light #psTableSection .chip{ color:#065f46; }           /* já tem bg verde claro */
+.light #psIRBadge{ color:#0f172a; }
+
+/* =========================
+   ALINHAMENTO — SEÇÃO TAXAS
+   ========================= */
+
+/* 2 colunas iguais com alinhamento “pela base” */
+.taxes-grid-v2{
+  grid-template-columns: minmax(300px,1fr) minmax(300px,1fr);
+  align-items: end;               /* alinha base dos blocos */
+  column-gap: 20px;
+}
+
+/* altura consistente para inputs/selects */
+.taxes-grid-v2 input,
+.taxes-grid-v2 select{
+  height: 44px;                   /* mesma linha visual */
+  line-height: 44px;
+}
+
+/* o “Aplicar IR regressivo” vira um pill do tamanho do input */
+.ir-inline-v2{
+  min-height: 44px;
+  padding: 0 12px;                /* altura + padding = 44px */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* texto à esquerda, switch à direita */
+  gap: 12px;
+  border-radius: 12px;
+}
+
+/* título dentro do pill (mantém alinhado e forte) */
+.ir-inline-v2 .ir-title{
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+}
+
+/* o switch não “pula” verticalmente */
+.ir-inline-v2 .switch,
+.ir-inline-v2 .switch .slider{ line-height: 1; }
+
+/* quando faltar espaço, manter proporção e empilhar bonito */
+@media (max-width: 920px){
+  .taxes-grid-v2{ grid-template-columns: 1fr; align-items: start; }
+  .ir-inline-v2{ width: 100%; }
+}
+
+/* =========================
+   ACABAMENTO VISUAL
+   ========================= */
+
+/* bordas e sombras dos cards/boxes no claro (mais suaves) */
+.light .form-section{
+  border-color:#e5eaf2;
+  box-shadow: 0 8px 24px rgba(2,6,23,.06);
+}
+
+/* pill do IR com hover sutil no claro */
+.light .ir-inline-v2:hover{
+  background:#f8fafc;
+  border-color:#dfe6f2;
+}
+
+/* reforço de contraste nos títulos dentro da seção */
+.light .form-section h4{ color:#0f172a; }
+
+/* ====== Centralizar bloco da tabela ====== */
+/* ajuste o valor de --table-max como preferir (960–1180px funciona bem) */
+#psTableSection{
+  --table-max: 1080px;
+  max-width: var(--table-max);
+  width: 100%;
+  margin-inline: auto;        /* centraliza */
+}
+
+/* garante que header, tabela e pager sigam a mesma largura */
+#psTableSection .table-head,
+#psTableSection .table-wrap,
+#psTableSection #psPagerBottom{
+  max-width: var(--table-max);
+  margin-inline: auto;
+}
+
+/* um respiro lateral quando a tela for estreita */
+@media (max-width: 640px){
+  #psTableSection{ padding-inline: 8px; }
+}
+/* ===== Juros Compostos — Cenários salvos (tema claro) ===== */
+.light .saved summary{
+  color: var(--text);
+}
+
+.light .save-row input{
+  background:#fff;
+  border-color:#dbe3ee;
+  color:var(--text);
+}
+
+/* Card de cada cenário */
+.light .scenario-list li{
+  background:#ffffff;
+  border:1px solid #e2e8f0;
+  color:var(--text);
+  box-shadow: 0 6px 16px rgba(2,6,23,.06);
+}
+
+/* Subtexto “meta” do cenário */
+.light .scenario-list li .meta{
+  color:#475569; /* slate-600 */
+}
+
+/* Botões “Aplicar/Excluir” visíveis no claro */
+.light .scenario-list li .row .ghost{
+  background:#ffffff;
+  color:#0f172a;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  padding:10px 14px;
+}
+.light .scenario-list li .row .ghost:hover{
+  background:#f3f6fb;
+}
+
+/* Acessibilidade: foco no card quando algum botão recebe foco */
+.light .scenario-list li:focus-within{
+  outline:0;
+  border-color:#bfe9cf;
+  box-shadow:0 0 0 3px rgba(34,197,94,.22);
+}
+/* =========================================================
+   1) TOKENS DE COMPONENTE (eliminam .light input duplicado)
+   ========================================================= */
+:root{
+  --input-bg:#0e121b;
+  --input-bd:#2a3246;
+  --card-bg:var(--panel);
+  --card-bd:var(--stroke);
+  --ring: 0 0 0 3px rgba(34,197,94,.25);
+}
+.light{
+  --input-bg:#ffffff;
+  --input-bd:#dbe3ee;
+}
+
+/* Inputs & selects usam tokens (sem precisar de .light input…) */
+input, select{
+  background: var(--input-bg);
+  border-color: var(--input-bd);
+}
+
+/* Cenário salvo: usa tokens (acaba com “preto no claro”) */
+.scenario-list li{
+  background: var(--card-bg);
+  border: 1px solid var(--card-bd);
+}
+
+/* =========================================================
+   2) UTILITÁRIOS CONSOLIDADOS (removem duplicatas)
+   ========================================================= */
+.align-center{ align-items:center } /* manter só 1x */
+
+:where(.top-fields,.fields-2){ display:grid; gap:12px; }
+
+/* top-fields (3 breakpoints) – remova as outras cópias */
+.top-fields{ grid-template-columns: repeat(4, minmax(180px,1fr)); }
+@media (max-width:980px){ .top-fields{ grid-template-columns: repeat(2, minmax(180px,1fr)); } }
+@media (max-width:560px){ .top-fields{ grid-template-columns: 1fr; } }
+
+/* fields-2 – remova as outras cópias */
+.fields-2{ grid-template-columns: repeat(2, minmax(200px,1fr)); }
+@media (max-width:640px){ .fields-2{ grid-template-columns: 1fr; } }
+
+/* input-std + input-compact (unifica tamanhos) */
+.input-std,
+.input-compact,
+.input-sm{
+  padding:12px 14px;
+  border-radius:12px;
+  font-size:.95rem;
+  width:100%;
+}
+.input-compact{ max-width: 320px; }
+.input-sm{ font-size:.92rem; padding:10px 12px; }
+
+/* ir-inline – 1 versão apenas */
+.ir-inline{ margin:6px 0 10px; padding-top:6px; border-top:1px dashed #2a3246; }
+
+/* edit-btn – 1 versão apenas */
+.edit-btn{
+  position:absolute; right:8px; bottom:8px;
+  font-size:.85rem; background:none; border:0; cursor:pointer; color:var(--muted);
+}
+.edit-btn:hover{ color:var(--accent); }
+
+/* “form details” – manter só um espaçamento */
+.form details{ margin:14px 0 16px; }
+
+/* =========================================================
+   3) TABELA – UMA FONTE DA VERDADE
+   (os blocos duplicados de #psTableSection podem ser removidos)
+   ========================================================= */
+#psTableSection{
+  --table-max:1080px;
+  max-width:var(--table-max);
+  margin-inline:auto;
+}
+#psTableSection .table-head,
+#psTableSection .table-wrap,
+#psTableSection #psPagerBottom{
+  max-width:var(--table-max);
+  margin-inline:auto;
+}
+#psTableSection .table-wrap{ overflow-x:auto; }
+#psTableSection table{ width:100%; border-collapse:collapse; font-size:.95rem; }
+#psTableSection th, #psTableSection td{
+  text-align:center; padding:12px 16px; white-space:nowrap;
+  border-bottom:1px solid color-mix(in srgb, var(--text) 10%, transparent);
+}
+#psTableSection thead th{
+  position:sticky; top:0; z-index:1; background:var(--panel);
+  box-shadow:0 1px 0 rgba(0,0,0,.18);
+}
+#psTableSection tbody tr:nth-child(odd){ background:rgba(255,255,255,.02); }
+#psTableSection tbody tr:hover{ background:rgba(255,255,255,.04); }
+
+/* Light refinements */
+.light #psTableSection th, .light #psTableSection td{ border-bottom-color:#edf0f6; }
+.light #psTableSection tbody tr:nth-child(odd){ background:#fafbff; }
+.light #psTableSection tbody tr:hover{ background:#f2f6ff; }
+
+/* Pager (uma versão só) */
+#psPagerBottom, #psPager{
+  display:flex !important; justify-content:center !important; align-items:center;
+  gap:12px; width:100%; margin-top:12px;
+}
+#psPagerBottom .ghost, #psPager .ghost{ padding:8px 12px; border-radius:10px; }
+#psPagerBottom .ghost[disabled], #psPager .ghost[disabled]{ opacity:.5; cursor:not-allowed; }
+
+/* =========================================================
+   4) CONTRASTE – CLARO (sem mudar visual)
+   ========================================================= */
+.light label{ color:#334155 !important; } /* slate-700 */
+.light .k-label, .light .hint, .light .muted,
+.light .check-inline, .light details > summary{ color:#475569 !important; } /* slate-600 */
+.light input::placeholder, .light select::placeholder{ color:#64748b; }
+
+/* =========================================================
+   5) TOGGLE DE TEMA – mantenha APENAS esta versão
+   (apague as outras definições de #themeToggle)
+   ========================================================= */
+#themeToggle{
+  --w:56px; --h:30px; --pad:3px;
+  all:unset; position:relative; width:var(--w); height:var(--h);
+  border-radius:999px; cursor:pointer; border:1px solid var(--stroke);
+  background:linear-gradient(180deg, #1a2030, #0f131e);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  display:inline-block; vertical-align:middle;
+  transition:background .2s, border-color .2s, box-shadow .2s;
+}
+#themeToggle:focus-visible{ outline:0; box-shadow:var(--ring); border-color:var(--accent); }
+/* knob + ícone centralizado */
+#themeToggle::before{
+  content:"🌙"; position:absolute; top:var(--pad); left:var(--pad);
+  width:calc(var(--h) - var(--pad)*2); height:calc(var(--h) - var(--pad)*2);
+  border-radius:50%; background:#dbe3ef; display:grid; place-items:center;
+  font-size:16px; box-shadow:0 3px 10px rgba(0,0,0,.35);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1), background .2s;
+}
+#themeToggle::after{ content:none !important; }
+.light #themeToggle{
+  background:linear-gradient(180deg, #ffffff, #f4f7fb);
+  border-color:#e2e8f0; box-shadow:0 4px 18px rgba(2,6,23,.08);
+}
+.light #themeToggle::before{
+  content:"☀️"; transform:translateX(calc(var(--w) - var(--h))); background:#0b0f14;
+}
